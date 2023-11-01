@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<head lang="en">
+  <meta charset="utf-8">
+  <title>New Portfolio</title>
+  <link rel="stylesheet" href="styles.css"></style>
+  <script src="fortune.js"></script>
+</head>
+<body>
+  <header>
+    <div class="spacer"></div>
+    <div class="links">
+      <a href="new-portfolio.html">New Portfolio</a>
+      <a>Saved Portfolios</a>
+      <a href="new-research.html">Research</a>
+      <a href="new-user.html">New User</a>
+      <a href="index.html">Home</a>
+    </div>
+    <div class="acct_btns">
+      <!-- <a><img src="button-frame.svg"></a> -->
+      <a>Log in</a>
+      <a>Sign up</a>
+    </div>
+  </header>
+  <div id="port_page">
+      <h1>Create a New Portfolio</h1>
+      <div id="New_Portfolio"></div>
+      <div id="portfolio_value"></div>
+      <button id="new_portfolio">New Portfolio</button>
+      <form class="new_port">
+        <div id="stocks_container">
+            <div class="stock_input">
+                <label for="ticker">Stock:</label>
+                <input type="text" class="ticker" placeholder="Enter a stock ticker symbol here (ex: AAPL)" required>
+            </div>
+            <div class="stock_input">
+                <label for="amount">Amount:</label>
+                <input type="text" class="amount" placeholder="Enter amount invested in USD (ex: $10000)" required>
+            </div>
+            <div class="stock_input">
+                <label id="date_invested" for="date">Date:</label>
+                <input type="text" class="date" placeholder="Enter date invested (ex: 2022-05-04)" required>
+            </div>
+        </div>
+        <div id="stock_listeners">
+          <button id="add_stock">Add Another Stock</button>
+          <button id="submission">Submit!</button>
+          <button id="custom_sell_date">Choose My Own Sell Date</button>
+        </div>
+      </form>
+      <div id="source">
+        <p id="credit_to_alpha"><em>*Source: Alpha Vantage API*</em></p>
+      </div>
+  </div>
+</body>

@@ -1,0 +1,152 @@
+body {
+    background: linear-gradient(#0a0a0a, #242424);
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: green;
+    height: 100vh;
+}
+
+header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.spacer {
+    justify-content: left;
+}
+
+.links {
+    display: flex;
+    justify-content: center;
+    width: 60%;
+}
+
+.links a {
+    padding: 20px;
+    transition: all 500ms ease-in-out;
+    font-size: 20px;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.links a:hover {
+    transform: scale(1.2);
+    transition: all 500ms ease-in-out;
+    text-decoration: none;
+}
+
+.links a:visited {
+    text-decoration: none;
+    color: green;
+}
+
+.spacer, .acct_btns {
+    width: 20%;
+    display: flex;
+    justify-content: center;
+}
+
+.acct_btns {
+    display: flex;
+}
+
+#stock_listeners {
+    display: flex; 
+    justify-content: center;
+}
+
+.acct_btns a {
+    padding: 20px;
+    background-color: green;
+    color: white;
+    height: 5px;
+    width: 50px;
+    border-radius: 20px;
+    /* why not working? */
+    justify-content: right;
+    transition: all 500ms ease-in-out;
+    text-decoration: none;
+}
+
+.acct_btns a:hover {
+    transform: scale(1.2);
+    transition: all 500ms ease-in-out;
+    text-decoration: none;
+}
+
+.acct_btns a:visited {
+    text-decoration: none;
+}
+
+.new_port {
+    display: none;
+}
+
+.new_port input {
+    width: 240px;
+    padding: 10px;
+}
+
+#port_page {
+    margin-inline: auto;
+    text-align: center;
+    width: 60%;
+}
+
+.stock_input label {
+    text-align: right;
+    padding-right: 10px;
+    align-self: center;
+	max-width: 25%;
+	flex-basis: 25%;
+}
+
+.stock_input input {
+	max-width: 75%;
+	flex-basis: 75%;
+}
+
+.stock_input {
+    display: flex;
+}
+
+#credit_to_alpha {
+    size: 20px; 
+    max-width: 62.5%;
+}
+
+#source {
+    display: block;
+}
+
+#port_page {
+    display: block;
+    background-color: #96989a;
+    color: rgb(25, 88, 25);
+    /* -webkit-text-stroke: 0.5px white;  
+
+    Button attributes:
+    background 
+    border radius
+    box shadow 
+    text (font, weight, etc)
+    padding (2 numbers, 1st = 0.5x the 2nd number)
+    */
+}
+
+#new_portfolio {
+    display: block; 
+    margin-inline: auto;
+}
+
+.remove {
+    display: none;
+}
+
+#graph {
+    display: none;
+    background-color: white;
+    height: 300px; 
+    width: 400px;
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<head lang="en">
+  <meta charset="utf-8">
+  <title>New Portfolio</title>
+  <link rel="stylesheet" href="research.css"></style>
+  <script src="research.js"></script>
+</head>
+<body>
+  <header>
+    <div class="spacer"></div>
+    <div class="links">
+      <a href="new-portfolio.html">New Portfolio</a>
+      <a>Saved Portfolios</a>
+      <a href="new-research.html">Research</a>
+      <a href="new-user.html">New User</a>
+      <a href="index.html">Home</a>
+    </div>
+    <div class="acct_btns">
+      <!-- <a><img src="button-frame.svg"></a> -->
+      <a>Log in</a>
+      <a>Sign up</a>
+    </div>
+  </header>
+  <div id="port_page">
+      <h1>Welcome to Fortune Research</h1>
+      <p>Fortune Research offers several different functional features, including security momentum assessments, visualizer graphs, personalized stock evaluation
+        and performance ratings and finding comparable securities based upon sector. 
+      </p>
+      <div id="New_Portfolio"></div>
+      <div id="portfolio_value"></div>
+      <button id="new_research">Do Research</button>
+      <form class="new_port">
+        <div id="stocks_container">
+            <div class="stock_input">
+                <label for="ticker">Stock:</label>
+                <input id="research_stock_ticker" type="text" class="ticker" placeholder="Enter a stock ticker symbol here (ex: AAPL)" required>
+            </div>
+        </div>
+        <div id="stock_listeners">
+          <button id="add_stock_research">Add Another Stock</button>
+          <button id="submission_research">Submit!</button>
+        </div>
+      </form>
+      <div id="source">
+        <p id="credit_to_alpha"><em>*Source: Alpha Vantage API*</em></p>
+      </div>
+      <div id="graph">
+      </div>
+      <div id="momentum">
+      </div>
+  </div>
+</body>
