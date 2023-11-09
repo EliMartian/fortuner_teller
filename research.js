@@ -12,6 +12,8 @@
   let bigTech = ["MSFT", "AAPL", "GOOG", "NDAQ"]
   let bigSemi = ["NVDA", "AVGO", "SMH", "ADI"]
 
+  // Testing 
+
   // Personal Project Notes:
 
   // Could make a stock rating system / timing system where it tells you the overall grade of the stock, 
