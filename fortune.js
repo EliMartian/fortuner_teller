@@ -134,9 +134,24 @@
   // Calculates a stock price and corresponding info based upon what stock, 
   // when the user invested, and how much they put into the security / stock. 
   function calculateStock(response) {
+    // Check if the user has supplied a custom sell date (ie not today's date as a selling date)
     if (document.getElementById('stocks_container').childElementCount === 4) {
+      console.log("inside the right if/else cond")
       var updatedInfo = response['Weekly Adjusted Time Series'];
       customSellDateBool = true;
+
+      // Grab the custom user's buy date information
+      let userInvestedDate = document.getElementById("date_invested_field").value;
+      console.log(userInvestedDate)
+      userInvestedDate = userInvestedDate.split("-")
+      let userInvestedYear = userInvestedDate[0];
+      let userInvestedMonth = userInvestedDate[1];
+      let userInvestedDay = userInvestedDate[2];
+
+      // Use helper function to calculate the "best" meaning cloest possible day 
+      // out of the API available weekly info to what the user inputted
+      let indexDateInvested= findEntry(userInvestedYear, userInvestedMonth, userInvestedDay, response);
+      console.log(indexDateInvested)
 
       // Grab the custom sell information
       let customSellDate = document.querySelector('.custom_date').value; 
@@ -145,18 +160,17 @@
       let customSellMonth = sellDateArray[1];
       let customSellDay = sellDateArray[2];
 
-      // Use helper function to calculate the "best" meaning cloest possible day 
-      // out of the API available weekly info to what the user inputted
-      let minIndex = calculateBestReturnedDay(response, "buy_date"); 
-      let sellIndex = calculateBestReturnedDay(response, "sell_date"); 
+      let indexDateSold= findEntry(customSellYear, customSellMonth, customSellDay, response);
+
+      console.log("past index date sold")
 
       // Grab corresponding amounts to determine price / value
-      let adjClose = updatedInfo[Object.keys(updatedInfo)[minIndex]]['5. adjusted close'];
+      let adjClose = updatedInfo[Object.keys(updatedInfo)[indexDateInvested]]['5. adjusted close'];
       let amounts = document.querySelectorAll('.amount');
       let startMoney = amounts[stockIteration].value;
       let symbols = document.querySelectorAll('.ticker'); 
       let symbol = symbols[stockIteration].value;
-      let marketPrice = updatedInfo[Object.keys(updatedInfo)[sellIndex]]['5. adjusted close'];
+      let marketPrice = updatedInfo[Object.keys(updatedInfo)[indexDateSold]]['5. adjusted close'];
       
       let investmentValue = ((startMoney / adjClose) * marketPrice);
       totalPortfolioValue += investmentValue; 
@@ -200,16 +214,30 @@
         document.getElementById('custom_sell_date').style.display = "none";
       }
     } else {
-      let minIndex = calculateBestReturnedDay(response, "buy_date"); 
+      // let minIndex = calculateBestReturnedDay(response, "buy_date");
       var updatedInfo = response['Weekly Adjusted Time Series'];
 
-      let adjClose = updatedInfo[Object.keys(updatedInfo)[minIndex]]['5. adjusted close'];
+      // let adjClose = updatedInfo[Object.keys(updatedInfo)[minIndex]]['5. adjusted close'];
+      // Calculate the index of the date that the user invested in the response object
+      let userInvestedDate = document.getElementById("date_invested_field").value;
+      userInvestedDate = userInvestedDate.split("-")
+      let userInvestedYear = userInvestedDate[0];
+      let userInvestedMonth = userInvestedDate[1];
+      let userInvestedDay = userInvestedDate[2];
+
+      let indexDateInvested= findEntry(userInvestedYear, userInvestedMonth, userInvestedDay, response);
+      userAdjCloseInvested = updatedInfo[Object.keys(updatedInfo)[indexDateInvested]]['5. adjusted close'];
+      console.log(updatedInfo[Object.keys(updatedInfo)[indexDateInvested]])
+      console.log(updatedInfo[Object.keys(updatedInfo)[indexDateInvested]]['5. adjusted close'])
+
       let amounts = document.querySelectorAll('.amount');
       let startMoney = amounts[stockIteration].value; 
       let symbols = document.querySelectorAll('.ticker'); 
       let symbol = symbols[stockIteration].value;
       let marketPrice = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
-      let investmentValue = ((startMoney / adjClose) * marketPrice);
+      console.log("Market Price: ")
+      console.log(marketPrice)
+      let investmentValue = ((startMoney / userAdjCloseInvested) * marketPrice);
       totalPortfolioValue += investmentValue; 
           
       stockTracker[godCounter] = response['Meta Data']['2. Symbol']; 
@@ -255,42 +283,79 @@
     }
   }
 
-  // Calculates the best week to select based upon the user's inputted date
-  function calculateBestReturnedDay(response, date) {
-    let dates; 
-    let symbolizer = document.querySelectorAll(".ticker");
-    if (date == "buy_date") {
-      dates = document.querySelector(".date").value; 
-    } else {
-      dates = document.querySelector('.custom_date').value; 
-    }
-    let dateArray = dates.split('-');
-    let year = dateArray[0];
-    let month = dateArray[1];
-    let day = dateArray[2];
-    var updatedInfo = response['Weekly Adjusted Time Series'];
-    let length = Object.keys(updatedInfo).length;
-    let minIndex = 0;
-    let min = 100000;
-    let validData = false; // NOTE: UPDATE THIS LATER TO INCLUDE IF THEY GO TOO EARLY
-    for (let i = 0; i < length; i++) {
-      let tuple = Object.keys(updatedInfo)[i]; 
-      tupleData = tuple.split('-');
-      if (tupleData[0] == year) {
-        if (tupleData[1] == month) {
-          if (tupleData[2] >= day) {
-            let temp = Math.abs((tupleData[2] / 7) - (day / 7));
-            if (temp < min) {
-            min = temp;
-            minIndex = i; 
+  // Finds the closest entry in the API week list based upon 
+    // a provided year, month, and date. Returns the index of the week which 
+    // is cloest to the provided year, month and day input. 
+    function findEntry(year, month, day, response) {
+      console.log("Trying to find you an entry")
+      console.log(year)
+      console.log(month)
+      console.log(day)
+      console.log(response)
+      var updatedInfo = response['Weekly Adjusted Time Series'];
+      let length = Object.keys(updatedInfo).length
+      let minIndex = 0;
+      let min = 100000;
+      let validData = false; // NOTE: UPDATE THIS TO INCLUDE IF THEY GO TOO EARLY LATER
+      for (let i = 0; i < length; i++) {
+        let tuple = Object.keys(updatedInfo)[i];
+        console.log(tuple)
+        tupleData = tuple.split('-');
+        if (tupleData[0] == year) {
+          if (tupleData[1] == month) {
+            console.log("Match on")
+            console.log(tupleData)
+            if (tupleData[2] >= day || (day > tupleData[2] && (Math.abs(tupleData[2] - day) <= 7))) {
+              let temp = Math.abs((tupleData[2] / 7) - (day / 7));
+              if (temp < min) {
+              min = temp;
+              minIndex = i; 
+              }
             }
           }
         }
       }
+      console.log("Successfully found you an entry")
+      // return the minimum difference index between the date the user provided and the closest match in the weekly series
+      return minIndex; 
     }
-    // return the minimum difference index between the date the user provided and the closest match in the weekly series
-    return minIndex; 
-  }
+
+  // // Calculates the best week to select based upon the user's inputted date
+  // function calculateBestReturnedDay(response, date) {
+  //   let dates; 
+  //   let symbolizer = document.querySelectorAll(".ticker");
+  //   if (date == "buy_date") {
+  //     dates = document.querySelector(".date").value; 
+  //   } else {
+  //     dates = document.querySelector('.custom_date').value; 
+  //   }
+  //   let dateArray = dates.split('-');
+  //   let year = dateArray[0];
+  //   let month = dateArray[1];
+  //   let day = dateArray[2];
+  //   var updatedInfo = response['Weekly Adjusted Time Series'];
+  //   let length = Object.keys(updatedInfo).length;
+  //   let minIndex = 0;
+  //   let min = 100000;
+  //   let validData = false; // NOTE: UPDATE THIS LATER TO INCLUDE IF THEY GO TOO EARLY
+  //   for (let i = 0; i < length; i++) {
+  //     let tuple = Object.keys(updatedInfo)[i]; 
+  //     tupleData = tuple.split('-');
+  //     if (tupleData[0] == year) {
+  //       if (tupleData[1] == month) {
+  //         if (tupleData[2] >= day) {
+  //           let temp = Math.abs((tupleData[2] / 7) - (day / 7));
+  //           if (temp < min) {
+  //           min = temp;
+  //           minIndex = i; 
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // return the minimum difference index between the date the user provided and the closest match in the weekly series
+  //   return minIndex; 
+  // }
 
 
   /**
