@@ -134,6 +134,7 @@
   // Calculates a stock price and corresponding info based upon what stock, 
   // when the user invested, and how much they put into the security / stock. 
   function calculateStock(response) {
+    console.log(response);
     // Check if the user has supplied a custom sell date (ie not today's date as a selling date)
     if (document.getElementById('stocks_container').childElementCount === 4) {
       console.log("inside the right if/else cond")
@@ -214,18 +215,27 @@
         document.getElementById('custom_sell_date').style.display = "none";
       }
     } else {
+      console.log("inside of the regular no custom sell date option branch")
       // let minIndex = calculateBestReturnedDay(response, "buy_date");
       var updatedInfo = response['Weekly Adjusted Time Series'];
+      console.log("updated info")
+      console.log(updatedInfo);
 
       // let adjClose = updatedInfo[Object.keys(updatedInfo)[minIndex]]['5. adjusted close'];
       // Calculate the index of the date that the user invested in the response object
+      
+      console.log("about to grab their investe date")
       let userInvestedDate = document.getElementById("date_invested_field").value;
+      console.log("here's the user's invested date")
+      console.log(userInvestedDate)
       userInvestedDate = userInvestedDate.split("-")
       let userInvestedYear = userInvestedDate[0];
       let userInvestedMonth = userInvestedDate[1];
       let userInvestedDay = userInvestedDate[2];
+      console.log("After userInvestedDate Split")
 
       let indexDateInvested= findEntry(userInvestedYear, userInvestedMonth, userInvestedDay, response);
+      console.log("After findEntry")
       userAdjCloseInvested = updatedInfo[Object.keys(updatedInfo)[indexDateInvested]]['5. adjusted close'];
       console.log(updatedInfo[Object.keys(updatedInfo)[indexDateInvested]])
       console.log(updatedInfo[Object.keys(updatedInfo)[indexDateInvested]]['5. adjusted close'])
@@ -287,11 +297,6 @@
     // a provided year, month, and date. Returns the index of the week which 
     // is cloest to the provided year, month and day input. 
     function findEntry(year, month, day, response) {
-      console.log("Trying to find you an entry")
-      console.log(year)
-      console.log(month)
-      console.log(day)
-      console.log(response)
       var updatedInfo = response['Weekly Adjusted Time Series'];
       let length = Object.keys(updatedInfo).length
       let minIndex = 0;
@@ -315,7 +320,8 @@
           }
         }
       }
-      console.log("Successfully found you an entry")
+      console.log("Successfully found you an entry below:")
+      console.log(Object.keys(updatedInfo)[minIndex])
       // return the minimum difference index between the date the user provided and the closest match in the weekly series
       return minIndex; 
     }

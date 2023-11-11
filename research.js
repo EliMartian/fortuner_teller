@@ -208,11 +208,11 @@
     oneValue.textContent = "Your investment's 1-year yield would be: " + investmentValueOneYearLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('momentum').appendChild(oneValue);
 
-    let YTDValue = document.createElement('p');
-    globalYTDTrack = ((10000 / YTDAdjClose) * marketPrice);
-    calculateSP500Rating(((10000 / YTDAdjClose) * marketPrice));
-    YTDValue.textContent = "Your investment's YTD yield would be: " + investmentValueYTDLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('momentum').appendChild(YTDValue);
+    // let YTDValue = document.createElement('p');
+    // globalYTDTrack = ((10000 / YTDAdjClose) * marketPrice);
+    // calculateSP500Rating(((10000 / YTDAdjClose) * marketPrice));
+    // YTDValue.textContent = "Your investment's YTD yield would be: " + investmentValueYTDLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    // document.getElementById('momentum').appendChild(YTDValue);
   }
 
   // "Grades" the stock based upon how much the investment grew to from an 
@@ -340,6 +340,8 @@
         }
       }
     }
+    console.log("Found you the best entry directly below:")
+    console.log(Object.keys(updatedInfo)[minIndex]);
     // return the minimum difference index between the date the user provided and the closest match in the weekly series
     return minIndex; 
   }
