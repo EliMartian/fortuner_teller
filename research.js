@@ -169,19 +169,62 @@
 
     // The market price of what the security is currently going for on the stock market
     let marketPrice = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
-  
+    // Initial investment is set using 10000 standard
+    let initialInvestment = 10000;
+
+    // Dynamically create a scaler that allows user to adjust their initial amount
+    let initialInvestmentContainer = document.createElement('div');
+    initialInvestmentContainer.classList.add("slider-container");
+    let investmentLabel = document.createElement('label');
+    investmentLabel.for = "invest_slider";
+    let investmentInput = document.createElement('input');
+    investmentInput.id = "slider";
+    investmentInput.type = "range";
+    investmentInput.min = "1000";
+    investmentInput.max = "100000";
+    investmentInput.value = "10000";
+    investmentInput.step = 1000;
+    initialInvestmentContainer.textContent = initialInvestment;
+    let investmentText = document.createElement('p');
+    investmentText.textContent = "Investing: " + initialInvestment;
+    initialInvestmentContainer.appendChild(investmentLabel);
+    initialInvestmentContainer.appendChild(investmentInput);
+    initialInvestmentContainer.appendChild(investmentText);
+    investmentInput.addEventListener('input', function() {
+      investmentText.textContent = "Investing: " + investmentInput.value;
+      initialInvestment = investmentInput.value;
+      // clear out previous content
+      document.getElementById('momentum').innerHTML = "";
+      displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
+    })
+    // Add class to display visual styling and scaling capabilities
+    document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
+
+    displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
+    
+
+    // let YTDValue = document.createElement('p');
+    // globalYTDTrack = ((10000 / YTDAdjClose) * marketPrice);
+    // calculateSP500Rating(((10000 / YTDAdjClose) * marketPrice));
+    // YTDValue.textContent = "Your investment's YTD yield would be: " + investmentValueYTDLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    // document.getElementById('momentum').appendChild(YTDValue);
+  }
+
+  function displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice) {
     // Calculate initial investment yields based upon the $10,000 invested figure 
-    let investmentValueTenYearsLater = ((10000 / tenYearAdjClose) * marketPrice);
-    let investmentValueFiveYearsLater = ((10000 / fiveYearAdjClose) * marketPrice);
-    let investmentValueTwoYearsLater = ((10000 / twoYearAdjClose) * marketPrice);
-    let investmentValueStartLater = ((10000 / startAdjClose) * marketPrice);
-    let investmentValueOneYearLater = ((10000 / oneYearAdjClose) * marketPrice);
-    let investmentValueYTDLater = ((10000 / YTDAdjClose) * marketPrice);
+    let investmentValueTenYearsLater = ((initialInvestment / tenYearAdjClose) * marketPrice);
+    let investmentValueFiveYearsLater = ((initialInvestment / fiveYearAdjClose) * marketPrice);
+    let investmentValueTwoYearsLater = ((initialInvestment / twoYearAdjClose) * marketPrice);
+    let investmentValueStartLater = ((initialInvestment / startAdjClose) * marketPrice);
+    let investmentValueOneYearLater = ((initialInvestment / oneYearAdjClose) * marketPrice);
+    let investmentValueYTDLater = ((initialInvestment / YTDAdjClose) * marketPrice);
 
     // Display the value that the security would be worth today if it was purchased 
     // in a $10,000 amount 10 years ago
     let tenValue = document.createElement('p');
     let tenRating = document.createElement('p');
+    // Note that this score is based on my own algorithm using the 10000 investment standard, 
+    // and accordingly the user is not allowed to alter this value (it would not affect the score anyways even if they could)
     tenRatingScore = stockRatingTenYrYield(((10000 / tenYearAdjClose) * marketPrice));
     tenValue.textContent = "Your investment's 10-year yield would be: " + investmentValueTenYearsLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     tenRating.textContent = "Your investment's 10-year yield is rated at: " + tenRatingScore;
@@ -207,12 +250,6 @@
     let oneValue = document.createElement('p');
     oneValue.textContent = "Your investment's 1-year yield would be: " + investmentValueOneYearLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('momentum').appendChild(oneValue);
-
-    // let YTDValue = document.createElement('p');
-    // globalYTDTrack = ((10000 / YTDAdjClose) * marketPrice);
-    // calculateSP500Rating(((10000 / YTDAdjClose) * marketPrice));
-    // YTDValue.textContent = "Your investment's YTD yield would be: " + investmentValueYTDLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    // document.getElementById('momentum').appendChild(YTDValue);
   }
 
   // "Grades" the stock based upon how much the investment grew to from an 
