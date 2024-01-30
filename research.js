@@ -58,77 +58,84 @@
   // Calculates a stock / security price and corresponding info based upon what stock, 
   // when the user invested, and how much they put into the security / stock.
   function calculateResearch(res) {
+      console.log("Trying new onload function!!!")
       var updatedInfo = res['Weekly Adjusted Time Series'];
       ticker = ticker.toLowerCase();
       let length = Object.keys(updatedInfo).length;
       let newGraphBackground = document.createElement('img'); 
       newGraphBackground.src = "https://media.istockphoto.com/id/1341800395/vector/grid-paper-mathematical-graph-cartesian-coordinate-system-with-x-axis-y-axis-squared.jpg?s=612x612&w=0&k=20&c=Jcq_YJw1cEufocBwcUu9N1BxXErtlYSr3FLYFyFFKAM=";
+      newGraphBackground.onload = function () {
+        // Set up the graph of API weeks and initialize pre-sets 
+        let pixelDistanceWidth = (((newGraphBackground.x + 452) -  (newGraphBackground.x + 24)) / (length))
+        let firstEverAdjClose = updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
+
+        // Create a height scaling score to adjust the vertical distance between dots depending 
+        // on how much the stock price has increased over its lifetime. Automatically adjusts 
+        // depending on how good / bad of a run a stock has had. 
+        let heightScaleScore = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'] / updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
+        let biggestAdjCloseEverSeenForStock = 0; 
+        let lowestAdjCloseEverSeenForStock = 10000000000;
+        let kingCount = 1; 
+        for (let i = 0; i < length; i++) {
+          let dot = document.createElement('span');
+          dot.addEventListener('mouseover', function() {
+            let dotDate = document.createElement('p');
+            dotDate.textContent = Object.keys(updatedInfo)[i];
+            dotDate.id = 'dot#' + dot.id;
+            dotDate.classList.add('dot_label');
+            dotDate.style.left = 485 + 0 + ((length - i) * pixelDistanceWidth) + "px"; 
+            // dotDate.style.left = 24 + i * pixelDistanceWidth + "px"; // GPT
+            dotDate.style.top = 775 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
+            document.getElementById('graph').appendChild(dotDate);
+          });
+
+          dot.addEventListener('mouseout', function() {
+            currDot = document.getElementById('dot#' + dot.id);
+            document.getElementById('graph').removeChild(currDot);
+          })
+
+          dot.classList.add('dot');
+          document.getElementById('graph').appendChild(dot);
+          dot.style.left = 485 + ((length - i) * pixelDistanceWidth) + "px"; 
+          // dot.style.left = 24 + i * pixelDistanceWidth + "px"; // GPT
+          let adjustedCurrentClose = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
+
+          if (adjustedCurrentClose >= biggestAdjCloseEverSeenForStock) {
+            biggestAdjCloseEverSeenForStock = adjustedCurrentClose;
+          }
+
+          if (adjustedCurrentClose <= lowestAdjCloseEverSeenForStock) {
+            lowestAdjCloseEverSeenForStock = adjustedCurrentClose;
+          }
+
+          if (i == 0 || (i % Math.floor((length - 1) / 4) == 0)) {
+            let label = document.createElement('span');
+            label.textContent = (Object.keys(updatedInfo)[i]).toString().split("-")[0];
+            label.classList.add('x_axis_label');
+            label.style.top = 850 + "px"; 
+            // label.style.right = 650 + (103 * kingCount) + "px";
+            label.style.right = 500 + i * pixelDistanceWidth + "px"; // GPT
+            kingCount++;
+            document.getElementById('graph').appendChild(label);
+          }
+          dot.style.top = 825 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
+        }
+
+        let mostRecentClose = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
+        let dotArray = document.querySelectorAll('.dot');
+        if (parseInt(firstEverAdjClose) < parseInt(mostRecentClose)) {
+          dotArray = document.querySelectorAll('.dot');
+          for (let z = 0; z < dotArray.length; z++) {
+            dotArray[z].style['background-color'] = 'green';
+          }
+        } else {
+          for (let z = 0; z < dotArray.length; z++) {
+            dotArray[z].style['background-color'] = 'red';
+          }
+        }
+      };
       document.getElementById('graph').appendChild(newGraphBackground);
-      // Set up the graph of API weeks and initialize pre-sets 
-      let pixelDistanceWidth = (((newGraphBackground.x + 452) -  (newGraphBackground.x + 24)) / (length))
-      let firstEverAdjClose = updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
-
-      // Create a height scaling score to adjust the vertical distance between dots depending 
-      // on how much the stock price has increased over its lifetime. Automatically adjusts 
-      // depending on how good / bad of a run a stock has had. 
-      let heightScaleScore = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'] / updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
-      let biggestAdjCloseEverSeenForStock = 0; 
-      let lowestAdjCloseEverSeenForStock = 10000000000;
-      let kingCount = 1; 
-      for (let i = 0; i < length; i++) {
-        let dot = document.createElement('span');
-        dot.addEventListener('mouseover', function() {
-          let dotDate = document.createElement('p');
-          dotDate.textContent = Object.keys(updatedInfo)[i];
-          dotDate.id = 'dot#' + dot.id;
-          dotDate.classList.add('dot_label');
-          dotDate.style.left = 700 + 0 + ((length - i) * pixelDistanceWidth) + "px"; 
-          dotDate.style.top = 775 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
-          document.getElementById('graph').appendChild(dotDate);
-        });
-
-        dot.addEventListener('mouseout', function() {
-          currDot = document.getElementById('dot#' + dot.id);
-          document.getElementById('graph').removeChild(currDot);
-        })
-
-        dot.classList.add('dot');
-        document.getElementById('graph').appendChild(dot);
-        dot.style.left = 725 + ((length - i) * pixelDistanceWidth) + "px"; 
-        let adjustedCurrentClose = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
-
-        if (adjustedCurrentClose >= biggestAdjCloseEverSeenForStock) {
-          biggestAdjCloseEverSeenForStock = adjustedCurrentClose;
-        }
-
-        if (adjustedCurrentClose <= lowestAdjCloseEverSeenForStock) {
-          lowestAdjCloseEverSeenForStock = adjustedCurrentClose;
-        }
-
-        if (i == 0 || (i % Math.floor((length - 1) / 4) == 0)) {
-          let label = document.createElement('span');
-          label.textContent = (Object.keys(updatedInfo)[i]).toString().split("-")[0];
-          label.classList.add('x_axis_label');
-          label.style.top = 850 + "px"; 
-          label.style.right = 650 + (103 * kingCount) + "px";
-          kingCount++;
-          document.getElementById('graph').appendChild(label);
-        }
-        dot.style.top = 825 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
-      }
-
-      let mostRecentClose = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
-      let dotArray = document.querySelectorAll('.dot');
-      if (parseInt(firstEverAdjClose) < parseInt(mostRecentClose)) {
-        dotArray = document.querySelectorAll('.dot');
-        for (let z = 0; z < dotArray.length; z++) {
-          dotArray[z].style['background-color'] = 'green';
-        }
-      } else {
-        for (let z = 0; z < dotArray.length; z++) {
-          dotArray[z].style['background-color'] = 'red';
-        }
-      }
+      
       calculateMomentum(res);
   }
 
@@ -172,33 +179,84 @@
     // Initial investment is set using 10000 standard
     let initialInvestment = 10000;
 
-    // Dynamically create a scaler that allows user to adjust their initial amount
-    let initialInvestmentContainer = document.createElement('div');
-    initialInvestmentContainer.classList.add("slider-container");
-    let investmentLabel = document.createElement('label');
-    investmentLabel.for = "invest_slider";
-    let investmentInput = document.createElement('input');
-    investmentInput.id = "slider";
-    investmentInput.type = "range";
-    investmentInput.min = "1000";
-    investmentInput.max = "100000";
-    investmentInput.value = "10000";
-    investmentInput.step = 1000;
-    initialInvestmentContainer.textContent = initialInvestment;
-    let investmentText = document.createElement('p');
-    investmentText.textContent = "Investing: " + initialInvestment;
-    initialInvestmentContainer.appendChild(investmentLabel);
-    initialInvestmentContainer.appendChild(investmentInput);
-    initialInvestmentContainer.appendChild(investmentText);
-    investmentInput.addEventListener('input', function() {
-      investmentText.textContent = "Investing: " + investmentInput.value;
-      initialInvestment = investmentInput.value;
-      // clear out previous content
-      document.getElementById('momentum').innerHTML = "";
-      displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
-    })
-    // Add class to display visual styling and scaling capabilities
-    document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
+
+
+
+    // // Dynamically create a scaler that allows user to adjust their initial amount
+    // let initialInvestmentContainer = document.createElement('div');
+    // initialInvestmentContainer.classList.add("slider-container");
+    // let investmentLabel = document.createElement('label');
+    // investmentLabel.for = "invest_slider";
+    // let investmentInput = document.createElement('input');
+    // investmentInput.id = "slider";
+    // investmentInput.type = "range";
+    // investmentInput.min = "1000";
+    // investmentInput.max = "100000";
+    // // investmentInput.value = "10000";
+    // investmentInput.step = 1000;
+    // initialInvestmentContainer.textContent = "Choose your initial investment amount:";
+    // let investmentText = document.createElement('p');
+    // investmentText.textContent = "Investing: $" + initialInvestment;
+    // initialInvestmentContainer.appendChild(investmentLabel);
+    // initialInvestmentContainer.appendChild(investmentInput);
+    // initialInvestmentContainer.appendChild(investmentText);
+    // investmentInput.addEventListener('input', function() {
+    //   investmentText.textContent = "Investing: $" + investmentInput.value;
+    //   initialInvestment = investmentInput.value;
+    //   // clear out previous content
+    //   document.getElementById('momentum').innerHTML = "";
+    //   displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
+    // })
+    // // Add class to display visual styling and scaling capabilities
+    // document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
+
+
+
+
+
+
+
+
+
+    // Dynamically create a scaler that allows the user to adjust their initial amount
+let initialInvestmentContainer = document.createElement('div');
+initialInvestmentContainer.classList.add("slider-container");
+let investmentLabel = document.createElement('label');
+investmentLabel.for = "invest_slider";
+let investmentInput = document.createElement('input');
+investmentInput.id = "slider";
+investmentInput.type = "range";
+investmentInput.min = "1000";
+investmentInput.max = "100000";
+investmentInput.value = "10000";
+investmentInput.step = 1000;
+
+initialInvestmentContainer.textContent = "Choose your initial investment amount:";
+let investmentText = document.createElement('p');
+investmentText.textContent = "Investing: $" + initialInvestment;
+
+initialInvestmentContainer.appendChild(investmentLabel);
+initialInvestmentContainer.appendChild(investmentInput);
+initialInvestmentContainer.appendChild(investmentText);
+
+investmentInput.addEventListener('input', function() {
+  investmentText.textContent = "Investing: $" + investmentInput.value;
+  initialInvestment = investmentInput.value;
+  // clear out previous content
+  document.getElementById('momentum').innerHTML = "";
+  displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
+});
+// Add class to display visual styling and scaling capabilities
+document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
+
+
+
+
+
+
+
+
+
 
     displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
     
@@ -210,6 +268,7 @@
     // document.getElementById('momentum').appendChild(YTDValue);
   }
 
+  // Bulk function to display all of the yields tenYear to YTD.
   function displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice) {
     // Calculate initial investment yields based upon the $10,000 invested figure 
     let investmentValueTenYearsLater = ((initialInvestment / tenYearAdjClose) * marketPrice);
