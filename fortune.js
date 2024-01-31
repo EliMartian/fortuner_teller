@@ -326,44 +326,6 @@
       return minIndex; 
     }
 
-  // // Calculates the best week to select based upon the user's inputted date
-  // function calculateBestReturnedDay(response, date) {
-  //   let dates; 
-  //   let symbolizer = document.querySelectorAll(".ticker");
-  //   if (date == "buy_date") {
-  //     dates = document.querySelector(".date").value; 
-  //   } else {
-  //     dates = document.querySelector('.custom_date').value; 
-  //   }
-  //   let dateArray = dates.split('-');
-  //   let year = dateArray[0];
-  //   let month = dateArray[1];
-  //   let day = dateArray[2];
-  //   var updatedInfo = response['Weekly Adjusted Time Series'];
-  //   let length = Object.keys(updatedInfo).length;
-  //   let minIndex = 0;
-  //   let min = 100000;
-  //   let validData = false; // NOTE: UPDATE THIS LATER TO INCLUDE IF THEY GO TOO EARLY
-  //   for (let i = 0; i < length; i++) {
-  //     let tuple = Object.keys(updatedInfo)[i]; 
-  //     tupleData = tuple.split('-');
-  //     if (tupleData[0] == year) {
-  //       if (tupleData[1] == month) {
-  //         if (tupleData[2] >= day) {
-  //           let temp = Math.abs((tupleData[2] / 7) - (day / 7));
-  //           if (temp < min) {
-  //           min = temp;
-  //           minIndex = i; 
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  //   // return the minimum difference index between the date the user provided and the closest match in the weekly series
-  //   return minIndex; 
-  // }
-
-
   /**
    * checks the status of the response
    * @param {DOMList} res - the response 
