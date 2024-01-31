@@ -8,6 +8,8 @@
   let stockTracker = []; 
   let godCounter = 0; 
   let globalYTDTrack = 0;
+  let globalStockRes;
+  let globalSPRes;
   let ticker; 
   let bigTech = ["MSFT", "AAPL", "GOOG", "NDAQ"]
   let bigSemi = ["NVDA", "AVGO", "SMH", "ADI"]
@@ -58,7 +60,7 @@
   // Calculates a stock / security price and corresponding info based upon what stock, 
   // when the user invested, and how much they put into the security / stock.
   function calculateResearch(res) {
-      console.log("Trying new onload function!!!")
+      globalStockRes = res['Weekly Adjusted Time Series'];
       var updatedInfo = res['Weekly Adjusted Time Series'];
       ticker = ticker.toLowerCase();
       let length = Object.keys(updatedInfo).length;
@@ -218,36 +220,36 @@
 
 
 
-    // Dynamically create a scaler that allows the user to adjust their initial amount
-let initialInvestmentContainer = document.createElement('div');
-initialInvestmentContainer.classList.add("slider-container");
-let investmentLabel = document.createElement('label');
-investmentLabel.for = "invest_slider";
-let investmentInput = document.createElement('input');
-investmentInput.id = "slider";
-investmentInput.type = "range";
-investmentInput.min = "1000";
-investmentInput.max = "100000";
-investmentInput.value = "10000";
-investmentInput.step = 1000;
+      // Dynamically create a scaler that allows the user to adjust their initial amount
+      let initialInvestmentContainer = document.createElement('div');
+      initialInvestmentContainer.classList.add("slider-container");
+      let investmentLabel = document.createElement('label');
+      investmentLabel.for = "invest_slider";
+      let investmentInput = document.createElement('input');
+      investmentInput.id = "slider";
+      investmentInput.type = "range";
+      investmentInput.min = "1000";
+      investmentInput.max = "100000";
+      investmentInput.value = "10000";
+      investmentInput.step = 1000;
 
-initialInvestmentContainer.textContent = "Choose your initial investment amount:";
-let investmentText = document.createElement('p');
-investmentText.textContent = "Investing: $" + initialInvestment;
+      initialInvestmentContainer.textContent = "Choose your initial investment amount:";
+      let investmentText = document.createElement('p');
+      investmentText.textContent = "Investing: $" + initialInvestment;
 
-initialInvestmentContainer.appendChild(investmentLabel);
-initialInvestmentContainer.appendChild(investmentInput);
-initialInvestmentContainer.appendChild(investmentText);
+      initialInvestmentContainer.appendChild(investmentLabel);
+      initialInvestmentContainer.appendChild(investmentInput);
+      initialInvestmentContainer.appendChild(investmentText);
 
-investmentInput.addEventListener('input', function() {
-  investmentText.textContent = "Investing: $" + investmentInput.value;
-  initialInvestment = investmentInput.value;
-  // clear out previous content
-  document.getElementById('momentum').innerHTML = "";
-  displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
-});
-// Add class to display visual styling and scaling capabilities
-document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
+      investmentInput.addEventListener('input', function() {
+      investmentText.textContent = "Investing: $" + investmentInput.value;
+      initialInvestment = investmentInput.value;
+      // clear out previous content
+      document.getElementById('momentum').innerHTML = "";
+      displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
+      });
+      // Add class to display visual styling and scaling capabilities
+      document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
 
 
 
@@ -261,11 +263,11 @@ document.getElementById('momentum_slider').appendChild(initialInvestmentContaine
     displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
     
 
-    // let YTDValue = document.createElement('p');
-    // globalYTDTrack = ((10000 / YTDAdjClose) * marketPrice);
-    // calculateSP500Rating(((10000 / YTDAdjClose) * marketPrice));
-    // YTDValue.textContent = "Your investment's YTD yield would be: " + investmentValueYTDLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    // document.getElementById('momentum').appendChild(YTDValue);
+    let YTDValue = document.createElement('p');
+    globalYTDTrack = ((10000 / YTDAdjClose) * marketPrice);
+    calculateSP500Rating(((10000 / YTDAdjClose) * marketPrice));
+    YTDValue.textContent = "Your investment's YTD yield would be: " + investmentValueYTDLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('momentum').appendChild(YTDValue);
   }
 
   // Bulk function to display all of the yields tenYear to YTD.
@@ -387,6 +389,7 @@ document.getElementById('momentum_slider').appendChild(initialInvestmentContaine
   // a positive rating, and hence is simply a measurement to be compared 
   // with other tools to determine a security's actual value or investment worth.
   function SP500YTD(res) {
+    globalSPRes = res['Weekly Adjusted Time Series'];
     var updatedInfo = res['Weekly Adjusted Time Series'];
     let marketPrice500 = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
     let YTDAdjClose500 = updatedInfo[Object.keys(updatedInfo)[indexYTD]]['5. adjusted close'];
@@ -410,6 +413,28 @@ document.getElementById('momentum_slider').appendChild(initialInvestmentContaine
     let SP500Txt = document.createElement('p');
     SP500Txt.textContent = "Your investment's YTD-yield vs. the S&P500 is rated at: " + SP500Rating;
     document.getElementById('momentum').appendChild(SP500Txt);
+    console.log("about to call new function VSSP500");
+    calculatePerformanceVSSP500(res);
+  }
+
+  // Calculates how many years the stock has outperformed the S&P500, 
+  // and creates a detailed report with which exact years it outperformed the S&P500 in terms of yield
+  // Only starts looking at the earliest year the stock being research was on the market for valid comparison. 
+  function calculatePerformanceVSSP500(res) {
+    console.log("inside of calculatePerformanceVSSP500");
+    console.log("did we ever get our stock global res working")
+    console.log(globalStockRes)
+    console.log("attempted length of StockRes")
+    console.log(Object.keys(globalStockRes).length)
+    console.log("did we ever get our SP500 global one working?")
+    console.log(globalSPRes)
+    console.log("attempted length of SPRes")
+    console.log(Object.keys(globalSPRes).length)
+    let oldestStockDate = findOldestEntry();
+    console.log("oldestStockDate");
+    console.log(oldestStockDate);
+    // then parse out oldestStockDate to send it into findEntry to find the corresponding date in S&P500 for comparison
+    // findEntry();
   }
 
   // Finds the closest entry in the API week list based upon 
@@ -442,10 +467,23 @@ document.getElementById('momentum_slider').appendChild(initialInvestmentContaine
     return minIndex; 
   }
 
-  // NOTE: TODO later 
+  // Finds the oldest possible API recorded entry of a particular stock. 
+  // For example, the earliest AAPL was recorded for Alpha Vantage was 1999 although
+  // the stock as been traded for many years before that date. Thus, we are working within
+  // the constraints of the API. 
   function findOldestEntry() {
-    // finds oldest entry to be used for the max gain from $10k in a stock, as well as to root out 
-    // if a company didn't exist for 10 years / 5 years yet (Google ran from 2014-2023 so for a 10 yr on a 2013 Google did not exist)
+    console.log("inside of findOldestEntry")
+    console.log("What is globalStockRes length?")
+    let gbLength = Object.keys(globalStockRes).length;
+    console.log(gbLength)
+    console.log("what is the date of that oldest index?")
+    console.log(Object.keys(globalStockRes)[gbLength - 1]);
+    console.log("what would have been the adj close at that date")
+    console.log(globalStockRes[Object.keys(globalStockRes)[gbLength - 1]]['5. adjusted close'])
+
+    return Object.keys(globalStockRes)[gbLength - 1];
+
+
   }
 
 
