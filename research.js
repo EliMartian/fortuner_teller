@@ -60,7 +60,7 @@
   // Calculates a stock / security price and corresponding info based upon what stock, 
   // when the user invested, and how much they put into the security / stock.
   function calculateResearch(res) {
-      globalStockRes = res['Weekly Adjusted Time Series'];
+      globalStockRes = res;
       var updatedInfo = res['Weekly Adjusted Time Series'];
       ticker = ticker.toLowerCase();
       let length = Object.keys(updatedInfo).length;
@@ -317,6 +317,7 @@
   // initial $10,000 investment over 10 years. 
   // NOTE: This is subjective and my personal rating system based upon 
   // researching and being involved in the stock market for four years and counting
+  // Returns: A numeric letter rating of how the security did over the given period
   function stockRatingTenYrYield(yieldValue) {
     let TenYearYieldRating; 
     if (yieldValue >= 150000) {
@@ -351,6 +352,7 @@
   // initial $10,000 investment over four years. 
   // NOTE: This is subjective and my personal rating system based upon 
   // researching and being involved in the stock market for four years and counting
+  // Returns: A numeric letter rating of how the security did over the given period
   function stockRatingFiveYrYield(yieldValue) {
     let FiveYearYieldRating; 
     if (yieldValue >= 32500) {
@@ -389,7 +391,7 @@
   // a positive rating, and hence is simply a measurement to be compared 
   // with other tools to determine a security's actual value or investment worth.
   function SP500YTD(res) {
-    globalSPRes = res['Weekly Adjusted Time Series'];
+    globalSPRes = res;
     var updatedInfo = res['Weekly Adjusted Time Series'];
     let marketPrice500 = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
     let YTDAdjClose500 = updatedInfo[Object.keys(updatedInfo)[indexYTD]]['5. adjusted close'];
@@ -421,18 +423,77 @@
   // and creates a detailed report with which exact years it outperformed the S&P500 in terms of yield
   // Only starts looking at the earliest year the stock being research was on the market for valid comparison. 
   function calculatePerformanceVSSP500(res) {
-    console.log("inside of calculatePerformanceVSSP500");
-    console.log("did we ever get our stock global res working")
+    let updatedStockInfo = globalStockRes['Weekly Adjusted Time Series'];
+    let updatedSPInfo = globalSPRes['Weekly Adjusted Time Series'];
+    console.log("stock res below")
     console.log(globalStockRes)
-    console.log("attempted length of StockRes")
-    console.log(Object.keys(globalStockRes).length)
-    console.log("did we ever get our SP500 global one working?")
-    console.log(globalSPRes)
-    console.log("attempted length of SPRes")
-    console.log(Object.keys(globalSPRes).length)
-    let oldestStockDate = findOldestEntry();
+    let oldestStockDate = findOldestEntry(globalStockRes['Weekly Adjusted Time Series']);
     console.log("oldestStockDate");
     console.log(oldestStockDate);
+    let parsedStockDate = oldestStockDate.split("-")
+    let startingStockYear = parsedStockDate[0];
+    startingStockYear = parseInt(startingStockYear);
+    console.log(startingStockYear);
+    // Take the next year after the earliest stock year to have a guaranteed January start to the year
+    console.log(parseInt(startingStockYear) + 1)
+
+    console.log("SP res below")
+    console.log(globalSPRes)
+    let oldestSPDate = findOldestEntry(globalSPRes['Weekly Adjusted Time Series']);
+    console.log("oldestSPDate");
+    console.log(oldestSPDate);
+    let parsedSPDate = oldestSPDate.split("-")
+    let startingSPYear = parsedSPDate[0];
+    startingSPYear = parseInt(startingSPYear);
+    console.log(startingSPYear);
+
+    // Ultimately convert this into a for loop to go until the year less than the current year (we have our current year YTD for that)
+
+    // Set the universal stock year to be the latest possible year (max) between the two securities
+    let universalStartYear = Math.max(startingSPYear, startingStockYear);
+    universalStartYear = parseInt(universalStartYear);
+    let universalEndYearDate = Object.keys(globalStockRes['Weekly Adjusted Time Series'])[0];
+    console.log(universalEndYearDate)
+    let universalEndYearArray = universalEndYearDate.split("-")
+    let universalEndYear = universalEndYearArray[0]
+    universalEndYear = parseInt(universalEndYear);
+    console.log(universalStartYear)
+    console.log(universalEndYear)
+    // Stop 2 years earlier than current year to ensure that YTD extends to proper range
+    for (let currYear = universalStartYear; currYear < universalEndYear - 1; currYear++) {
+      console.log("inside of for loop for start/end year calcs")
+      let januaryStockIndex = findEntry(currYear + 1, 1, 1, globalStockRes);
+      // Insert 1 year gap to simulate YTD calulcation
+      let nextJanuaryStockIndex = findEntry(currYear + 2, 1, 1, globalStockRes);
+      let januaryStockAdj = updatedStockInfo[Object.keys(updatedStockInfo)[januaryStockIndex]]['5. adjusted close'];
+      let nextJanuaryStockAdj = updatedStockInfo[Object.keys(updatedStockInfo)[nextJanuaryStockIndex]]['5. adjusted close'];
+      console.log(januaryStockAdj)
+      console.log(nextJanuaryStockAdj)
+
+      let januarySPIndex = findEntry(currYear + 1, 1, 1, globalSPRes);
+      let nextJanuarySPIndex = findEntry(currYear + 2, 1, 1, globalSPRes);
+      let januarySPAdj = updatedSPInfo[Object.keys(updatedSPInfo)[januarySPIndex]]['5. adjusted close'];
+      let nextJanuarySPAdj = updatedSPInfo[Object.keys(updatedSPInfo)[nextJanuarySPIndex]]['5. adjusted close'];
+      console.log(januarySPAdj)
+      console.log(nextJanuarySPAdj)
+
+      if (nextJanuarySPAdj / januarySPAdj > nextJanuaryStockAdj / januaryStockAdj) {
+        console.log("SP500 exceed stock for year:")
+        console.log(currYear)
+        console.log("to")
+        console.log(parseInt(currYear + 1))
+      } else {
+        console.log("Stock exceed SP500 for year:")
+        console.log(currYear)
+        console.log("to")
+        console.log(parseInt(currYear + 1))
+      }
+    }
+   
+    
+
+
+
     // then parse out oldestStockDate to send it into findEntry to find the corresponding date in S&P500 for comparison
     // findEntry();
   }
@@ -440,29 +501,33 @@
   // Finds the closest entry in the API week list based upon 
   // a provided year, month, and date. Returns the index of the week which 
   // is cloest to the provided year, month and day input. 
+  // Returns: The closest index (entry) in API response to the given date the user is requesting 
   function findEntry(year, month, day, response) {
+    console.log("Inside of findEntry")
+    console.log("Here was my response")
+    console.log(response)
     var updatedInfo = response['Weekly Adjusted Time Series'];
+    console.log("updated info")
+    console.log(updatedInfo)
     let length = Object.keys(updatedInfo).length
     let minIndex = 0;
     let min = 100000;
-    let validData = false; // NOTE: UPDATE THIS TO INCLUDE IF THEY GO TOO EARLY LATER
     for (let i = 0; i < length; i++) {
       let tuple = Object.keys(updatedInfo)[i]; 
       tupleData = tuple.split('-');
       if (tupleData[0] == year) {
         if (tupleData[1] == month) {
+          // Check to see if the day is after or within 7 days (a week in time series) close to the user's date
           if (tupleData[2] >= day || (day > tupleData[2] && (Math.abs(tupleData[2] - day) <= 7))) {
             let temp = Math.abs((tupleData[2] / 7) - (day / 7));
             if (temp < min) {
-            min = temp;
-            minIndex = i; 
+              min = temp;
+              minIndex = i; 
             }
           }
         }
       }
     }
-    console.log("Found you the best entry directly below:")
-    console.log(Object.keys(updatedInfo)[minIndex]);
     // return the minimum difference index between the date the user provided and the closest match in the weekly series
     return minIndex; 
   }
@@ -471,19 +536,11 @@
   // For example, the earliest AAPL was recorded for Alpha Vantage was 1999 although
   // the stock as been traded for many years before that date. Thus, we are working within
   // the constraints of the API. 
-  function findOldestEntry() {
-    console.log("inside of findOldestEntry")
-    console.log("What is globalStockRes length?")
-    let gbLength = Object.keys(globalStockRes).length;
-    console.log(gbLength)
-    console.log("what is the date of that oldest index?")
-    console.log(Object.keys(globalStockRes)[gbLength - 1]);
-    console.log("what would have been the adj close at that date")
-    console.log(globalStockRes[Object.keys(globalStockRes)[gbLength - 1]]['5. adjusted close'])
-
-    return Object.keys(globalStockRes)[gbLength - 1];
-
-
+  // Returns: the oldest date entry (in API response) of a given security
+  function findOldestEntry(security) {
+    // Grab the length of the security, and return the last index of the keys (dates)
+    let securityLength = Object.keys(security).length;
+    return Object.keys(security)[securityLength - 1];
   }
 
 
