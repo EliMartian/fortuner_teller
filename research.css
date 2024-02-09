@@ -187,13 +187,13 @@ header {
     margin: 20px;
   }
   
-  label {
+label {
     display: block;
     margin-bottom: 10px;
-  }
+}
   
-  /* Styling for the range input (slider) */
-  input[type="range"] {
+
+input[type="range"] {
     width: 70%;
     height: 5px;
     -webkit-appearance: none;
@@ -201,10 +201,9 @@ header {
     outline: none;
     opacity: 0.7;
     transition: opacity 0.2s;
-  }
+}
   
-  /* Styling for the slider thumb (handle) */
-  input[type="range"]::-webkit-slider-thumb {
+input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 35px; 
@@ -212,36 +211,25 @@ header {
     background: rgb(182, 181, 181); 
     cursor: pointer;
     transition: all 500ms ease-in-out;
-  }
+}
 
-  input[type="range"]::-webkit-slider-thumb:hover {
+input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.1);
     background: #4CAF50; 
     transition: all 500ms ease-in-out;
-  }
+}
   
-  input[type="range"]:hover {
+input[type="range"]:hover {
     opacity: 1;
-  }
+}
   
-Display the selected value 
-  #slider-value {
+#slider-value {
     margin-top: 10px;
     font-size: 16px; 
     color: #333;
-  }
+}
 
-  /* Styling for the slider thumb (handle) */
-/* input[type="range"]::-webkit-slider-thumb { GPT ROUND 2
-    -webkit-appearance: none;
-    appearance: none;
-    width: 35px;
-    height: 35px;
-    background: #4CAF50;
-    cursor: pointer;
-    border-radius: 50%;
-    position: relative;
-  }
-  
-  /* Custom style for the square */
-  
+#SPExceeded > p, #StockExceeded > p {
+  display: inline-block;
+  margin-right: 20px; /* Adjust the margin-right value as needed */
+}
