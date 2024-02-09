@@ -14,8 +14,6 @@
   let bigTech = ["MSFT", "AAPL", "GOOG", "NDAQ"]
   let bigSemi = ["NVDA", "AVGO", "SMH", "ADI"]
 
-  // Testing 
-
   // Personal Project Notes:
 
   // Could make a stock rating system / timing system where it tells you the overall grade of the stock, 
@@ -181,88 +179,38 @@
     // Initial investment is set using 10000 standard
     let initialInvestment = 10000;
 
+    // Dynamically create a scaler that allows the user to adjust their initial amount
+    let initialInvestmentContainer = document.createElement('div');
+    initialInvestmentContainer.classList.add("slider-container");
+    let investmentLabel = document.createElement('label');
+    investmentLabel.for = "invest_slider";
+    let investmentInput = document.createElement('input');
+    investmentInput.id = "slider";
+    investmentInput.type = "range";
+    investmentInput.min = "1000";
+    investmentInput.max = "100000";
+    investmentInput.value = "10000";
+    investmentInput.step = 1000;
 
+    initialInvestmentContainer.textContent = "Choose your initial investment amount:";
+    let investmentText = document.createElement('p');
+    investmentText.textContent = "Investing: $" + initialInvestment;
 
+    initialInvestmentContainer.appendChild(investmentLabel);
+    initialInvestmentContainer.appendChild(investmentInput);
+    initialInvestmentContainer.appendChild(investmentText);
 
-    // // Dynamically create a scaler that allows user to adjust their initial amount
-    // let initialInvestmentContainer = document.createElement('div');
-    // initialInvestmentContainer.classList.add("slider-container");
-    // let investmentLabel = document.createElement('label');
-    // investmentLabel.for = "invest_slider";
-    // let investmentInput = document.createElement('input');
-    // investmentInput.id = "slider";
-    // investmentInput.type = "range";
-    // investmentInput.min = "1000";
-    // investmentInput.max = "100000";
-    // // investmentInput.value = "10000";
-    // investmentInput.step = 1000;
-    // initialInvestmentContainer.textContent = "Choose your initial investment amount:";
-    // let investmentText = document.createElement('p');
-    // investmentText.textContent = "Investing: $" + initialInvestment;
-    // initialInvestmentContainer.appendChild(investmentLabel);
-    // initialInvestmentContainer.appendChild(investmentInput);
-    // initialInvestmentContainer.appendChild(investmentText);
-    // investmentInput.addEventListener('input', function() {
-    //   investmentText.textContent = "Investing: $" + investmentInput.value;
-    //   initialInvestment = investmentInput.value;
-    //   // clear out previous content
-    //   document.getElementById('momentum').innerHTML = "";
-    //   displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
-    // })
-    // // Add class to display visual styling and scaling capabilities
-    // document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
-
-
-
-
-
-
-
-
-
-      // Dynamically create a scaler that allows the user to adjust their initial amount
-      let initialInvestmentContainer = document.createElement('div');
-      initialInvestmentContainer.classList.add("slider-container");
-      let investmentLabel = document.createElement('label');
-      investmentLabel.for = "invest_slider";
-      let investmentInput = document.createElement('input');
-      investmentInput.id = "slider";
-      investmentInput.type = "range";
-      investmentInput.min = "1000";
-      investmentInput.max = "100000";
-      investmentInput.value = "10000";
-      investmentInput.step = 1000;
-
-      initialInvestmentContainer.textContent = "Choose your initial investment amount:";
-      let investmentText = document.createElement('p');
-      investmentText.textContent = "Investing: $" + initialInvestment;
-
-      initialInvestmentContainer.appendChild(investmentLabel);
-      initialInvestmentContainer.appendChild(investmentInput);
-      initialInvestmentContainer.appendChild(investmentText);
-
-      investmentInput.addEventListener('input', function() {
-      investmentText.textContent = "Investing: $" + investmentInput.value;
-      initialInvestment = investmentInput.value;
-      // clear out previous content
-      document.getElementById('momentum').innerHTML = "";
-      displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
-      });
-      // Add class to display visual styling and scaling capabilities
-      document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
-
-
-
-
-
-
-
-
-
-
+    investmentInput.addEventListener('input', function() {
+    investmentText.textContent = "Investing: $" + investmentInput.value;
+    initialInvestment = investmentInput.value;
+    // clear out previous content but only from the investment amounts (not the SP comparison)
+    document.getElementById('investment_scaler_container').innerHTML = "";
+    displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
+    });
+    // Add class to display visual styling and scaling capabilities
+    document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
     displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
     
-
     let YTDValue = document.createElement('p');
     globalYTDTrack = ((10000 / YTDAdjClose) * marketPrice);
     calculateSP500Rating(((10000 / YTDAdjClose) * marketPrice));
@@ -272,6 +220,9 @@
 
   // Bulk function to display all of the yields tenYear to YTD.
   function displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice) {
+    let investmentScalerContainer = document.createElement('div');
+    investmentScalerContainer.id = 'investment_scaler_container';
+    
     // Calculate initial investment yields based upon the $10,000 invested figure 
     let investmentValueTenYearsLater = ((initialInvestment / tenYearAdjClose) * marketPrice);
     let investmentValueFiveYearsLater = ((initialInvestment / fiveYearAdjClose) * marketPrice);
@@ -289,28 +240,30 @@
     tenRatingScore = stockRatingTenYrYield(((10000 / tenYearAdjClose) * marketPrice));
     tenValue.textContent = "Your investment's 10-year yield would be: " + investmentValueTenYearsLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     tenRating.textContent = "Your investment's 10-year yield is rated at: " + tenRatingScore;
-    document.getElementById('momentum').appendChild(tenValue);
-    document.getElementById('momentum').appendChild(tenRating);
+    investmentScalerContainer.appendChild(tenValue);
+    investmentScalerContainer.appendChild(tenRating);
 
     let fiveValue = document.createElement('p');
     let fiveRating = document.createElement('p');
     fiveRatingScore = stockRatingFiveYrYield(((10000 / fiveYearAdjClose) * marketPrice));
     fiveValue.textContent = "Your investment's 5-year yield would be: " + investmentValueFiveYearsLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     fiveRating.textContent = "Your investment's 5-year yield is rated at: " + fiveRatingScore;
-    document.getElementById('momentum').appendChild(fiveValue);
-    document.getElementById('momentum').appendChild(fiveRating);
+    investmentScalerContainer.appendChild(fiveValue);
+    investmentScalerContainer.appendChild(fiveRating);
 
     let startValue = document.createElement('p');
     startValue.textContent = "Your investment's yield since Elias' start (9/21/20) would be: " + investmentValueStartLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('momentum').appendChild(startValue);
+    investmentScalerContainer.appendChild(startValue);
 
     let twoValue = document.createElement('p');
     twoValue.textContent = "Your investment's 2-year yield would be: " + investmentValueTwoYearsLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('momentum').appendChild(twoValue);
+    investmentScalerContainer.appendChild(twoValue);
 
     let oneValue = document.createElement('p');
     oneValue.textContent = "Your investment's 1-year yield would be: " + investmentValueOneYearLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('momentum').appendChild(oneValue);
+    investmentScalerContainer.appendChild(oneValue);
+
+    document.getElementById('momentum').appendChild(investmentScalerContainer);
   }
 
   // "Grades" the stock based upon how much the investment grew to from an 
@@ -415,87 +368,78 @@
     let SP500Txt = document.createElement('p');
     SP500Txt.textContent = "Your investment's YTD-yield vs. the S&P500 is rated at: " + SP500Rating;
     document.getElementById('momentum').appendChild(SP500Txt);
-    console.log("about to call new function VSSP500");
     calculatePerformanceVSSP500(res);
   }
 
-  // Calculates how many years the stock has outperformed the S&P500, 
+  // Calculates how many years the stock has outperformed the S&P500, (also shows how the YTD % change feature that can be toggled on/off)
+  // Is also color coded to be red if the stock's ratio is less than 1 (indicating losses) or green (> 1 means gains). Same goes for S&P500
+  // also fix the updating that completely clears the SPPerformance feature: 
   // and creates a detailed report with which exact years it outperformed the S&P500 in terms of yield
-  // Only starts looking at the earliest year the stock being research was on the market for valid comparison. 
+  // Only starts looking at the earliest year both the stock being researched / S&P500 have market info for valid comparison
+  // of the overlapping year ranges. 
   function calculatePerformanceVSSP500(res) {
     let updatedStockInfo = globalStockRes['Weekly Adjusted Time Series'];
     let updatedSPInfo = globalSPRes['Weekly Adjusted Time Series'];
-    console.log("stock res below")
-    console.log(globalStockRes)
+    // Use our existing functions to figure out the oldest date the stock is on the market (of API data)
     let oldestStockDate = findOldestEntry(globalStockRes['Weekly Adjusted Time Series']);
-    console.log("oldestStockDate");
-    console.log(oldestStockDate);
     let parsedStockDate = oldestStockDate.split("-")
     let startingStockYear = parsedStockDate[0];
     startingStockYear = parseInt(startingStockYear);
-    console.log(startingStockYear);
     // Take the next year after the earliest stock year to have a guaranteed January start to the year
-    console.log(parseInt(startingStockYear) + 1)
-
-    console.log("SP res below")
-    console.log(globalSPRes)
     let oldestSPDate = findOldestEntry(globalSPRes['Weekly Adjusted Time Series']);
-    console.log("oldestSPDate");
-    console.log(oldestSPDate);
     let parsedSPDate = oldestSPDate.split("-")
     let startingSPYear = parsedSPDate[0];
     startingSPYear = parseInt(startingSPYear);
-    console.log(startingSPYear);
-
-    // Ultimately convert this into a for loop to go until the year less than the current year (we have our current year YTD for that)
 
     // Set the universal stock year to be the latest possible year (max) between the two securities
     let universalStartYear = Math.max(startingSPYear, startingStockYear);
     universalStartYear = parseInt(universalStartYear);
     let universalEndYearDate = Object.keys(globalStockRes['Weekly Adjusted Time Series'])[0];
-    console.log(universalEndYearDate)
     let universalEndYearArray = universalEndYearDate.split("-")
     let universalEndYear = universalEndYearArray[0]
     universalEndYear = parseInt(universalEndYear);
-    console.log(universalStartYear)
-    console.log(universalEndYear)
-    // Stop 2 years earlier than current year to ensure that YTD extends to proper range
+
+    let SPExceedDiv = document.createElement('div');
+    SPExceedDiv.id = 'SPExceeded';
+    let SPHeading = document.createElement('h3');
+    SPHeading.textContent = "S&P500 exceeded Stock for the following year(s): ";
+    SPExceedDiv.appendChild(SPHeading);
+
+    let StockExceedDiv = document.createElement('div');
+    StockExceedDiv.id = 'StockExceeded';
+    let StockHeading = document.createElement('h3');
+    StockHeading.textContent = "Stock exceeded S&P500 for the following year(s): ";
+    StockExceedDiv.appendChild(StockHeading);
+
+    // Stops 2 years earlier than current year to ensure that YTD extends to proper range
     for (let currYear = universalStartYear; currYear < universalEndYear - 1; currYear++) {
-      console.log("inside of for loop for start/end year calcs")
-      let januaryStockIndex = findEntry(currYear + 1, 1, 1, globalStockRes);
+      let januaryStockIndex = findEntry(currYear, 1, 1, globalStockRes);
       // Insert 1 year gap to simulate YTD calulcation
-      let nextJanuaryStockIndex = findEntry(currYear + 2, 1, 1, globalStockRes);
+      let nextJanuaryStockIndex = findEntry(currYear + 1, 1, 1, globalStockRes);
+      // Grab the adjusted close prices for the stock
       let januaryStockAdj = updatedStockInfo[Object.keys(updatedStockInfo)[januaryStockIndex]]['5. adjusted close'];
       let nextJanuaryStockAdj = updatedStockInfo[Object.keys(updatedStockInfo)[nextJanuaryStockIndex]]['5. adjusted close'];
-      console.log(januaryStockAdj)
-      console.log(nextJanuaryStockAdj)
-
-      let januarySPIndex = findEntry(currYear + 1, 1, 1, globalSPRes);
-      let nextJanuarySPIndex = findEntry(currYear + 2, 1, 1, globalSPRes);
+      // Perform the same YTD calculation but for the S&P500
+      let januarySPIndex = findEntry(currYear, 1, 1, globalSPRes);
+      let nextJanuarySPIndex = findEntry(currYear + 1, 1, 1, globalSPRes);
       let januarySPAdj = updatedSPInfo[Object.keys(updatedSPInfo)[januarySPIndex]]['5. adjusted close'];
       let nextJanuarySPAdj = updatedSPInfo[Object.keys(updatedSPInfo)[nextJanuarySPIndex]]['5. adjusted close'];
-      console.log(januarySPAdj)
-      console.log(nextJanuarySPAdj)
-
+      // Format the string for display to the user
+      let yearString = `${currYear}-${currYear + 1}`;
+      let yearArrayHeading = document.createElement('p');
+      yearArrayHeading.textContent = "" + yearString + "(" + ticker + ": " + (nextJanuaryStockAdj / januaryStockAdj).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ")";
+      if (nextJanuaryStockAdj / januaryStockAdj < 1) {
+        yearArrayHeading.style['color'] = 'red';
+      } 
+      // Determine whether or not the stock exceeded the S&P500 for each year
       if (nextJanuarySPAdj / januarySPAdj > nextJanuaryStockAdj / januaryStockAdj) {
-        console.log("SP500 exceed stock for year:")
-        console.log(currYear)
-        console.log("to")
-        console.log(parseInt(currYear + 1))
+        SPExceedDiv.appendChild(yearArrayHeading);
       } else {
-        console.log("Stock exceed SP500 for year:")
-        console.log(currYear)
-        console.log("to")
-        console.log(parseInt(currYear + 1))
+        StockExceedDiv.appendChild(yearArrayHeading);
       }
     }
-   
-    
-
-
-
-    // then parse out oldestStockDate to send it into findEntry to find the corresponding date in S&P500 for comparison
-    // findEntry();
+    document.getElementById('momentum').appendChild(StockExceedDiv);
+    document.getElementById('momentum').appendChild(SPExceedDiv);
   }
 
   // Finds the closest entry in the API week list based upon 
@@ -503,12 +447,7 @@
   // is cloest to the provided year, month and day input. 
   // Returns: The closest index (entry) in API response to the given date the user is requesting 
   function findEntry(year, month, day, response) {
-    console.log("Inside of findEntry")
-    console.log("Here was my response")
-    console.log(response)
     var updatedInfo = response['Weekly Adjusted Time Series'];
-    console.log("updated info")
-    console.log(updatedInfo)
     let length = Object.keys(updatedInfo).length
     let minIndex = 0;
     let min = 100000;
