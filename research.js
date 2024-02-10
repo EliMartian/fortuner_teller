@@ -67,6 +67,12 @@
       newGraphBackground.onload = function () {
         // Set up the graph of API weeks and initialize pre-sets 
         let pixelDistanceWidth = (((newGraphBackground.x + 452) -  (newGraphBackground.x + 24)) / (length))
+        console.log("NewGraphBackground X")
+        console.log(newGraphBackground.x)
+        console.log("pixelDistanceWidth")
+        console.log(pixelDistanceWidth)
+        console.log("length")
+        console.log(length)
         let firstEverAdjClose = updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
 
         // Create a height scaling score to adjust the vertical distance between dots depending 
@@ -83,7 +89,7 @@
             dotDate.textContent = Object.keys(updatedInfo)[i];
             dotDate.id = 'dot#' + dot.id;
             dotDate.classList.add('dot_label');
-            dotDate.style.left = 485 + 0 + ((length - i) * pixelDistanceWidth) + "px"; 
+            dotDate.style.left = newGraphBackground.x + 80 + ((length - i) * pixelDistanceWidth) + "px"; 
             // dotDate.style.left = 24 + i * pixelDistanceWidth + "px"; // GPT
             dotDate.style.top = 775 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
             document.getElementById('graph').appendChild(dotDate);
@@ -96,7 +102,7 @@
 
           dot.classList.add('dot');
           document.getElementById('graph').appendChild(dot);
-          dot.style.left = 485 + ((length - i) * pixelDistanceWidth) + "px"; 
+          dot.style.left = newGraphBackground.x + 80 + ((length - i) * pixelDistanceWidth) + "px"; 
           // dot.style.left = 24 + i * pixelDistanceWidth + "px"; // GPT
           let adjustedCurrentClose = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
 
@@ -113,8 +119,8 @@
             label.textContent = (Object.keys(updatedInfo)[i]).toString().split("-")[0];
             label.classList.add('x_axis_label');
             label.style.top = 850 + "px"; 
-            // label.style.right = 650 + (103 * kingCount) + "px";
-            label.style.right = 500 + i * pixelDistanceWidth + "px"; // GPT
+            label.style.right = 650 + (103 * kingCount) + "px"; // This Label Works absolutely perfectly for dates
+            // label.style.right = 500 + i * pixelDistanceWidth + "px"; // GPT
             kingCount++;
             document.getElementById('graph').appendChild(label);
           }
@@ -220,6 +226,11 @@
 
   // Bulk function to display all of the yields tenYear to YTD.
   function displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice) {
+    let scalerContainer = document.getElementById('investment_scaler_container')
+    // Check to see if teh scalerContainerAlready exists, and if it does 
+    if (scalerContainer) {
+      document.getElementById('momentum').removeChild(scalerContainer);
+    } 
     let investmentScalerContainer = document.createElement('div');
     investmentScalerContainer.id = 'investment_scaler_container';
     
@@ -263,7 +274,7 @@
     oneValue.textContent = "Your investment's 1-year yield would be: " + investmentValueOneYearLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     investmentScalerContainer.appendChild(oneValue);
 
-    document.getElementById('momentum').appendChild(investmentScalerContainer);
+    document.getElementById('momentum').insertAdjacentElement("afterbegin", investmentScalerContainer);
   }
 
   // "Grades" the stock based upon how much the investment grew to from an 
@@ -429,7 +440,7 @@
       let yearArrayHeading = document.createElement('p');
       yearArrayHeading.textContent = "" + yearString + "(" + ticker + ": " + (nextJanuaryStockAdj / januaryStockAdj).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ")";
       if (nextJanuaryStockAdj / januaryStockAdj < 1) {
-        yearArrayHeading.style['color'] = 'red';
+        yearArrayHeading.style['color'] = '#C21807';
       } 
       // Determine whether or not the stock exceeded the S&P500 for each year
       if (nextJanuarySPAdj / januarySPAdj > nextJanuaryStockAdj / januaryStockAdj) {
