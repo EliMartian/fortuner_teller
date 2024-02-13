@@ -115,14 +115,25 @@
           }
 
           if (i == 0 || (i % Math.floor((length - 1) / 4) == 0)) {
-            let label = document.createElement('span');
-            label.textContent = (Object.keys(updatedInfo)[i]).toString().split("-")[0];
-            label.classList.add('x_axis_label');
-            label.style.top = 850 + "px"; 
-            label.style.right = 650 + (103 * kingCount) + "px"; // This Label Works absolutely perfectly for dates
-            // label.style.right = 500 + i * pixelDistanceWidth + "px"; // GPT
+            let yearLabel = document.createElement('span');
+            let priceLabel = document.createElement('span');
+            yearLabel.textContent = (Object.keys(updatedInfo)[i]).toString().split("-")[0];
+            let closeAdj = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
+            closeAdj = Number(closeAdj); // Convert to number
+            closeAdj = closeAdj.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            console.log("closeAdj")
+            console.log(closeAdj)
+            priceLabel.textContent = closeAdj;
+            yearLabel.classList.add('x_axis_label');
+            priceLabel.classList.add('x_axis_label')
+            priceLabel.style.left = newGraphBackground.x + 40 + "px";
+            priceLabel.style.top = (1.57 * newGraphBackground.y) + (67 * kingCount) + "px";
+            yearLabel.style.top = 850 + "px"; 
+            yearLabel.style.right = newGraphBackground.x + 5 + (103 * kingCount) + "px";
             kingCount++;
-            document.getElementById('graph').appendChild(label);
+            graphObj = document.getElementById('graph');
+            graphObj.appendChild(yearLabel);
+            graphObj.appendChild(priceLabel);
           }
           dot.style.top = 825 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
         }
@@ -438,7 +449,7 @@
       // Format the string for display to the user
       let yearString = `${currYear}-${currYear + 1}`;
       let yearArrayHeading = document.createElement('p');
-      yearArrayHeading.textContent = "" + yearString + "(" + ticker + ": " + (nextJanuaryStockAdj / januaryStockAdj).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ")";
+      yearArrayHeading.textContent = "" + yearString + "(" + ticker.toUpperCase() + ": " + (nextJanuaryStockAdj / januaryStockAdj).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ")";
       if (nextJanuaryStockAdj / januaryStockAdj < 1) {
         yearArrayHeading.style['color'] = '#C21807';
       } 
