@@ -2,34 +2,32 @@
   window.addEventListener('load', init);
   const APIkey = "A5V08V16P0UGS8VY"  
   // "TLUYLC7Y5VCCJC9A"
-  let totalPortfolioValue = 0; 
-  let stockIteration = 0; 
-  let moneyTracker = []; 
-  let stockTracker = []; 
-  let godCounter = 0; 
   let globalYTDTrack = 0;
   let globalStockRes;
   let globalSPRes;
   let ticker; 
-  let bigTech = ["MSFT", "AAPL", "GOOG", "NDAQ"]
-  let bigSemi = ["NVDA", "AVGO", "SMH", "ADI"]
 
-  // Personal Project Notes:
+  // Personal Project Notes + Future Ideas:
 
-  // Could make a stock rating system / timing system where it tells you the overall grade of the stock, 
-  // (using how it ranks within its sector, ie is NVTS good compared to AVGO + NVDA? is AMZN good compared to MSFT, etc.)
-  // What the predicted price in 3 months, 6 months, 1 year, etc. is (using past data and trends), 
+  // How stable a stock is, ie a way to recognize and appreciate the reliability of mutual funds / defense stocks
+
+  // Able to pop in a ticker symbol, and get the estimate of what industry the security belongs to 
+  // based on the common patterns of a defined leader in the industry. Ie, can we identify a semiconductor 
+  // stock based on the trends of other prominent semiconductor stocks?
+
+  // What the rough predicted price in 3 months, 6 months, 1 year, etc. is (using past data and trends), 
   // and how much money will it be worth at that time in the future based upon what you put in it TODAY!
 
-  // Could also do an analysis by sector, show how to make a balanced portfolio, allow the user to 
-  // play around with the %'s by sector on performance, ie if they increase defense stocks from 10% to 15%, 
-  // how does that change their overall outlook? 
+  // Do a "breakthrough" hunt, ie look at the trends leading up to TSLA's rise, NVDA's rise, SMCI's rise
+  // etc that could lead to the discovery of these stocks 
 
   // Could show how money compares to investments like CDs, high-yield bank accounts, inflation, etc. 
   
+  // Sets up default page behavior
   function init() {
     document.getElementById('new_research').addEventListener('click', conductNewResearch); 
     document.getElementById('submission_research').addEventListener('click', function(el) {
+      // prevent automatic page refresh behavior
       el.preventDefault();
       doResearch(); 
     }); 
@@ -46,6 +44,7 @@
   // And shows graphically how much money the user could have made, and how they 
   // can utilize that info to make more money in the future from investing... hence Fortune Teller
   function doResearch() {
+      // Extract ticker symbol from the user
       ticker = document.getElementById("research_stock_ticker").value;
       let URL = "https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=" + ticker + "&apikey=" + APIkey;
       fetch(URL)
@@ -61,18 +60,15 @@
       globalStockRes = res;
       var updatedInfo = res['Weekly Adjusted Time Series'];
       ticker = ticker.toLowerCase();
+      // Extract the total length of API response (in weeks)
       let length = Object.keys(updatedInfo).length;
       let newGraphBackground = document.createElement('img'); 
       newGraphBackground.src = "https://media.istockphoto.com/id/1341800395/vector/grid-paper-mathematical-graph-cartesian-coordinate-system-with-x-axis-y-axis-squared.jpg?s=612x612&w=0&k=20&c=Jcq_YJw1cEufocBwcUu9N1BxXErtlYSr3FLYFyFFKAM=";
       newGraphBackground.onload = function () {
         // Set up the graph of API weeks and initialize pre-sets 
-        let pixelDistanceWidth = (((newGraphBackground.x + 452) -  (newGraphBackground.x + 24)) / (length))
-        console.log("NewGraphBackground X")
-        console.log(newGraphBackground.x)
-        console.log("pixelDistanceWidth")
-        console.log(pixelDistanceWidth)
-        console.log("length")
-        console.log(length)
+        // Hard-coded constants have been tailored based on specifics of the graph image, where possible magic numbers
+        // have been avoided
+        let pixelDistanceWidth = (((newGraphBackground.x + 452) -  (newGraphBackground.x + 24)) / (length));
         let firstEverAdjClose = updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
 
         // Create a height scaling score to adjust the vertical distance between dots depending 
@@ -81,20 +77,21 @@
         let heightScaleScore = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'] / updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
         let biggestAdjCloseEverSeenForStock = 0; 
         let lowestAdjCloseEverSeenForStock = 10000000000;
-        let kingCount = 1; 
+        // Keep track of respective intervals to print price / date information in overall stock lifetime
+        let intervalCount = 1; 
         for (let i = 0; i < length; i++) {
           let dot = document.createElement('span');
           dot.addEventListener('mouseover', function() {
+            // Show the date of the dot when hovered over by user
             let dotDate = document.createElement('p');
             dotDate.textContent = Object.keys(updatedInfo)[i];
             dotDate.id = 'dot#' + dot.id;
             dotDate.classList.add('dot_label');
             dotDate.style.left = newGraphBackground.x + 80 + ((length - i) * pixelDistanceWidth) + "px"; 
-            // dotDate.style.left = 24 + i * pixelDistanceWidth + "px"; // GPT
             dotDate.style.top = 775 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
             document.getElementById('graph').appendChild(dotDate);
           });
-
+          // Toggle back to default dot look
           dot.addEventListener('mouseout', function() {
             currDot = document.getElementById('dot#' + dot.id);
             document.getElementById('graph').removeChild(currDot);
@@ -103,7 +100,6 @@
           dot.classList.add('dot');
           document.getElementById('graph').appendChild(dot);
           dot.style.left = newGraphBackground.x + 80 + ((length - i) * pixelDistanceWidth) + "px"; 
-          // dot.style.left = 24 + i * pixelDistanceWidth + "px"; // GPT
           let adjustedCurrentClose = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
 
           if (adjustedCurrentClose >= biggestAdjCloseEverSeenForStock) {
@@ -115,22 +111,21 @@
           }
 
           if (i == 0 || (i % Math.floor((length - 1) / 4) == 0)) {
+            // For intervals of fifths, display graphically the year and price of the stock
             let yearLabel = document.createElement('span');
             let priceLabel = document.createElement('span');
             yearLabel.textContent = (Object.keys(updatedInfo)[i]).toString().split("-")[0];
             let closeAdj = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
             closeAdj = Number(closeAdj); // Convert to number
             closeAdj = closeAdj.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            console.log("closeAdj")
-            console.log(closeAdj)
             priceLabel.textContent = closeAdj;
             yearLabel.classList.add('x_axis_label');
             priceLabel.classList.add('x_axis_label')
             priceLabel.style.left = newGraphBackground.x + 40 + "px";
-            priceLabel.style.top = (1.57 * newGraphBackground.y) + (67 * kingCount) + "px";
+            priceLabel.style.top = (1.49 * newGraphBackground.y) + (69 * intervalCount) + "px";
             yearLabel.style.top = 850 + "px"; 
-            yearLabel.style.right = newGraphBackground.x + 5 + (103 * kingCount) + "px";
-            kingCount++;
+            yearLabel.style.right = newGraphBackground.x + 5 + (103 * intervalCount) + "px";
+            intervalCount++;
             graphObj = document.getElementById('graph');
             graphObj.appendChild(yearLabel);
             graphObj.appendChild(priceLabel);
@@ -140,12 +135,15 @@
 
         let mostRecentClose = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
         let dotArray = document.querySelectorAll('.dot');
+        // If the stock has gone up since the very first time it came on the market (IPO or similar),  
+        // color the dot to be green 
         if (parseInt(firstEverAdjClose) < parseInt(mostRecentClose)) {
           dotArray = document.querySelectorAll('.dot');
           for (let z = 0; z < dotArray.length; z++) {
             dotArray[z].style['background-color'] = 'green';
           }
         } else {
+          // Otherwise color the dot to be red if it has since gone down in price
           for (let z = 0; z < dotArray.length; z++) {
             dotArray[z].style['background-color'] = 'red';
           }
@@ -156,6 +154,9 @@
       calculateMomentum(res);
   }
 
+  // Looks at 10, 5, 2, and 1 year (YTD) intervals of the stocks performance across 
+  // each of these windows. Assigns a rating to the stock based upon its performance over a 10 year 
+  // and 5 year timeline. Also calculates the YTD performance of the stock vs the S&P500 as a benchmark
   function calculateMomentum(res) {
     var updatedInfo = res['Weekly Adjusted Time Series'];
     // Grab the current date that the user searched on (today's date)
@@ -193,10 +194,10 @@
 
     // The market price of what the security is currently going for on the stock market
     let marketPrice = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
-    // Initial investment is set using 10000 standard
+    // Initial investment is set using $10,000 standard (common practice in investment community)
     let initialInvestment = 10000;
 
-    // Dynamically create a scaler that allows the user to adjust their initial amount
+    // Dynamically create a scaler that allows the user to adjust their initial amount invested into the stock
     let initialInvestmentContainer = document.createElement('div');
     initialInvestmentContainer.classList.add("slider-container");
     let investmentLabel = document.createElement('label');
@@ -218,11 +219,11 @@
     initialInvestmentContainer.appendChild(investmentText);
 
     investmentInput.addEventListener('input', function() {
-    investmentText.textContent = "Investing: $" + investmentInput.value;
-    initialInvestment = investmentInput.value;
-    // clear out previous content but only from the investment amounts (not the SP comparison)
-    document.getElementById('investment_scaler_container').innerHTML = "";
-    displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
+      investmentText.textContent = "Investing: $" + investmentInput.value;
+      initialInvestment = investmentInput.value;
+      // clear out previous content but only from the investment amounts (not the SP comparison)
+      document.getElementById('investment_scaler_container').innerHTML = "";
+      displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice);
     });
     // Add class to display visual styling and scaling capabilities
     document.getElementById('momentum_slider').appendChild(initialInvestmentContainer);
@@ -237,8 +238,9 @@
 
   // Bulk function to display all of the yields tenYear to YTD.
   function displayYieldValues(initialInvestment, tenYearAdjClose, fiveYearAdjClose, twoYearAdjClose, startAdjClose, oneYearAdjClose, YTDAdjClose, marketPrice) {
-    let scalerContainer = document.getElementById('investment_scaler_container')
-    // Check to see if teh scalerContainerAlready exists, and if it does 
+    let scalerContainer = document.getElementById('investment_scaler_container');
+    // Check to see if the scalerContainerAlready exists, and if it does get rid of itself
+    // to make room for new content
     if (scalerContainer) {
       document.getElementById('momentum').removeChild(scalerContainer);
     } 
@@ -273,6 +275,7 @@
     investmentScalerContainer.appendChild(fiveValue);
     investmentScalerContainer.appendChild(fiveRating);
 
+    // Also display my start date for fun
     let startValue = document.createElement('p');
     startValue.textContent = "Your investment's yield since Elias' start (9/21/20) would be: " + investmentValueStartLater.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     investmentScalerContainer.appendChild(startValue);
@@ -291,7 +294,7 @@
   // "Grades" the stock based upon how much the investment grew to from an 
   // initial $10,000 investment over 10 years. 
   // NOTE: This is subjective and my personal rating system based upon 
-  // researching and being involved in the stock market for four years and counting
+  // researching and being involved in the stock market for four years and change (no pun intended)
   // Returns: A numeric letter rating of how the security did over the given period
   function stockRatingTenYrYield(yieldValue) {
     let TenYearYieldRating; 
@@ -326,7 +329,7 @@
   // "Grades" the stock based upon how much the investment grew to from an 
   // initial $10,000 investment over four years. 
   // NOTE: This is subjective and my personal rating system based upon 
-  // researching and being involved in the stock market for four years and counting
+  // researching and being involved in the stock market for four years and change (no pun intended)
   // Returns: A numeric letter rating of how the security did over the given period
   function stockRatingFiveYrYield(yieldValue) {
     let FiveYearYieldRating; 
