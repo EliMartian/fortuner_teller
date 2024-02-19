@@ -69,7 +69,6 @@
         // Hard-coded constants have been tailored based on specifics of the graph image, where possible magic numbers
         // have been avoided
         let pixelDistanceWidth = (((newGraphBackground.x + 452) -  (newGraphBackground.x + 24)) / (length));
-        let firstEverAdjClose = updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
 
         // Create a height scaling score to adjust the vertical distance between dots depending 
         // on how much the stock price has increased over its lifetime. Automatically adjusts 
@@ -79,6 +78,23 @@
         let lowestAdjCloseEverSeenForStock = 10000000000;
         // Keep track of respective intervals to print price / date information in overall stock lifetime
         let intervalCount = 1; 
+        let mostRecentClose = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
+        let firstEverAdjClose = updatedInfo[Object.keys(updatedInfo)[length - 1]]['5. adjusted close'];
+        firstEverAdjClose = Number(firstEverAdjClose);
+        mostRecentClose = Number(mostRecentClose);
+        let y_intervals = 0;
+        console.log("most recent close")
+        console.log(mostRecentClose)
+        console.log("first Ever adj close")
+        console.log(firstEverAdjClose)
+
+        let adjCloseTotalDifference = mostRecentClose - firstEverAdjClose;
+
+        console.log("adj close price intervals")
+        let adjClosePriceInterval = adjCloseTotalDifference / 4;
+        adjClosePriceInterval = Number(adjClosePriceInterval)
+        console.log(adjClosePriceInterval)
+
         for (let i = 0; i < length; i++) {
           let dot = document.createElement('span');
           dot.addEventListener('mouseover', function() {
@@ -115,25 +131,53 @@
             let yearLabel = document.createElement('span');
             let priceLabel = document.createElement('span');
             yearLabel.textContent = (Object.keys(updatedInfo)[i]).toString().split("-")[0];
-            let closeAdj = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
-            closeAdj = Number(closeAdj); // Convert to number
+            let closeAdj;
+            console.log("y_intervals is")
+            console.log(y_intervals)
+            if (y_intervals == 0) {
+              console.log("inside y intervals is 0 branch")
+              closeAdj = firstEverAdjClose;
+              console.log("what is closeAdj")
+              console.log(closeAdj)
+            } else if (y_intervals < 4) {
+              console.log("inside of y < 5 branch")
+              closeAdj = firstEverAdjClose + (adjClosePriceInterval * y_intervals);
+              console.log("what is closeAdj")
+              console.log(closeAdj)
+              console.log("quick math")
+              console.log(firstEverAdjClose + (adjClosePriceInterval * y_intervals))
+            } else {
+              console.log("inside of y == 5 branch")
+              closeAdj = mostRecentClose;
+              console.log("what is closeAdj")
+              console.log(closeAdj)
+            }
+            console.log("what is closeAdj")
+            console.log(closeAdj)
+            // let closeAdj = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
+            // closeAdj = Number(closeAdj); // Convert to number
             closeAdj = closeAdj.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             priceLabel.textContent = closeAdj;
+            console.log("priceLabel textContet is ")
+            console.log(priceLabel)
+
             yearLabel.classList.add('x_axis_label');
             priceLabel.classList.add('x_axis_label')
             priceLabel.style.left = newGraphBackground.x + 40 + "px";
-            priceLabel.style.top = (1.49 * newGraphBackground.y) + (69 * intervalCount) + "px";
+            priceLabel.style.top = (2.85 * newGraphBackground.y) - (69 * intervalCount) + "px";
             yearLabel.style.top = 850 + "px"; 
             yearLabel.style.right = newGraphBackground.x + 5 + (103 * intervalCount) + "px";
             intervalCount++;
             graphObj = document.getElementById('graph');
             graphObj.appendChild(yearLabel);
             graphObj.appendChild(priceLabel);
+            y_intervals = y_intervals + 1
+            console.log("y_intervals at the end of obj is")
+            console.log(y_intervals)
           }
           dot.style.top = 825 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
         }
 
-        let mostRecentClose = updatedInfo[Object.keys(updatedInfo)[0]]['5. adjusted close'];
         let dotArray = document.querySelectorAll('.dot');
         // If the stock has gone up since the very first time it came on the market (IPO or similar),  
         // color the dot to be green 
