@@ -164,7 +164,7 @@
             yearLabel.classList.add('x_axis_label');
             priceLabel.classList.add('x_axis_label')
             priceLabel.style.left = newGraphBackground.x + 40 + "px";
-            priceLabel.style.top = (2.85 * newGraphBackground.y) - (69 * intervalCount) + "px";
+            priceLabel.style.top = (2.85 * newGraphBackground.y) - (70 * intervalCount) + "px";
             yearLabel.style.top = 850 + "px"; 
             yearLabel.style.right = newGraphBackground.x + 5 + (103 * intervalCount) + "px";
             intervalCount++;
@@ -480,8 +480,15 @@
     StockHeading.textContent = "Stock exceeded S&P500 for the following year(s): ";
     StockExceedDiv.appendChild(StockHeading);
 
+    let totalYears = 0;
+    let outPerf = 0;
+    let decYear = 0;
+    let underPGain = 0;
+    let underPLoss = 0;
+
     // Stops 2 years earlier than current year to ensure that YTD extends to proper range
     for (let currYear = universalStartYear; currYear < universalEndYear - 1; currYear++) {
+      totalYears = totalYears + 1
       let januaryStockIndex = findEntry(currYear, 1, 1, globalStockRes);
       // Insert 1 year gap to simulate YTD calulcation
       let nextJanuaryStockIndex = findEntry(currYear + 1, 1, 1, globalStockRes);
@@ -499,16 +506,48 @@
       yearArrayHeading.textContent = "" + yearString + "(" + ticker.toUpperCase() + ": " + (nextJanuaryStockAdj / januaryStockAdj).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ")";
       if (nextJanuaryStockAdj / januaryStockAdj < 1) {
         yearArrayHeading.style['color'] = '#C21807';
-      } 
+        decYear = decYear + 1
+      } else if ((nextJanuaryStockAdj / januaryStockAdj < 0.75) && (nextJanuarySPAdj / januarySPAdj > 0.75)) {
+        // add more to check if the S&P did this too 
+        console.log("unacceptable. Stock just died randomly for no reason. ")
+      }
       // Determine whether or not the stock exceeded the S&P500 for each year
       if (nextJanuarySPAdj / januarySPAdj > nextJanuaryStockAdj / januaryStockAdj) {
         SPExceedDiv.appendChild(yearArrayHeading);
+        if ((nextJanuaryStockAdj / januaryStockAdj) > 1) {
+          underPGain = underPGain + 1;
+        } else {
+          underPLoss = underPLoss + 1;
+        }
       } else {
         StockExceedDiv.appendChild(yearArrayHeading);
+        outPerf = outPerf + 1
       }
     }
     document.getElementById('momentum').appendChild(StockExceedDiv);
     document.getElementById('momentum').appendChild(SPExceedDiv);
+    console.log(totalYears)
+    console.log(outPerf)
+    console.log(outPerf / totalYears)
+    if (((outPerf / totalYears) > 0.67) && (underPGain > underPLoss)) {
+      console.log("stock is an outperformer for the market")
+    } else {
+      console.log("stock failed compared to the market")
+    }
+
+    if ((decYear / totalYears) < 0.1) {
+      console.log("stock is a super gainer and overpowered")
+    } else if ((decYear / totalYears) < 0.3) {
+      console.log("stock consistently gained value")
+    } else {
+      console.log("stock consistently lost value")
+    }
+
+    // graphically display that information to user, and also add in another vet that 
+    // the stock needs to at least increase by the total amount that the S&P did over their overlapping 
+    // period otherwise that's just stupid. For example, OKE was a consistent gainer but didn't get 
+    // penalized hard enough for shedding 0.49 of its value one year, (shouldn't do more than 0.75 unless)
+    // the S&P does for that year too, and also needs to increase the same amount that 
   }
 
   // Finds the closest entry in the API week list based upon 
