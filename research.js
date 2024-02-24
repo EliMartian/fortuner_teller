@@ -485,6 +485,13 @@
     let decYear = 0;
     let underPGain = 0;
     let underPLoss = 0;
+    let consecOutPerform = 0;
+    let consecYearStart = 0;
+    let consecYearArray = [];
+    let yesBuy = false;
+
+    let summary = document.getElementById('summary');
+
 
     // Stops 2 years earlier than current year to ensure that YTD extends to proper range
     for (let currYear = universalStartYear; currYear < universalEndYear - 1; currYear++) {
@@ -510,11 +517,50 @@
       } else if ((nextJanuaryStockAdj / januaryStockAdj < 0.75) && (nextJanuarySPAdj / januarySPAdj > 0.75)) {
         // add more to check if the S&P did this too 
         console.log("unacceptable. Stock just died randomly for no reason. ")
+      } else if (nextJanuaryStockAdj / januaryStockAdj >= 1.2) {
+        console.log("currYear performed better than 1.2 threshold")
+        console.log("consecYearStart")
+        console.log(consecYearStart)
+        consecYearArray[consecOutPerform] = currYear;
+        consecOutPerform = consecOutPerform + 1;
+        if (consecYearStart == 0) {
+          consecYearStart = currYear; 
+        } else {
+          if ((currYear - consecYearStart <= 3) && consecOutPerform >= 3) {
+            yesBuy = true;
+            let buyRecommendation = document.createElement('h4');
+            buyRecommendation.textContent = "I would have bought this stock on January 1st of the year: " + Number(currYear + 1);
+            let yearsOutPerformed = document.createElement('p');
+            yearsOutPerformed.textContent = "Based upon the trend observed over these years: " + consecYearArray;
+            summary.appendChild(buyRecommendation);
+            summary.appendChild(yearsOutPerformed)
+            console.log("I would have bought this stock on January 1st of the year: ");
+            console.log(currYear + 1)
+            console.log("These are the years that I saw it outperform")
+            console.log(consecYearArray)
+            console.log("starting fresh")
+            consecYearStart = 0;
+            consecOutPerform = 0;
+            consecYearArray = [];
+          } else if ((currYear - consecYearStart > 2)){
+            console.log("resetting and looking for a new consec sequence")
+            console.log("consecYearStart")
+            console.log(consecYearStart)
+            console.log("curr year")
+            console.log(currYear)
+            consecYearStart = 0;
+            consecOutPerform = 0;
+            consecYearArray = [];
+          }
+        }
+        
       }
       // Determine whether or not the stock exceeded the S&P500 for each year
       if (nextJanuarySPAdj / januarySPAdj > nextJanuaryStockAdj / januaryStockAdj) {
         SPExceedDiv.appendChild(yearArrayHeading);
+        // If the market did better than the stock, but the stock still gained value (ie > 1.0)
         if ((nextJanuaryStockAdj / januaryStockAdj) > 1) {
+          // Increase the underperfomed but still gained counter
           underPGain = underPGain + 1;
         } else {
           underPLoss = underPLoss + 1;
@@ -524,6 +570,16 @@
         outPerf = outPerf + 1
       }
     }
+    let buyDecision = document.createElement('h3');
+    
+    if (yesBuy) {
+      buyDecision.textContent = "Would I recommend buying this stock?: Yes!";
+    } else {
+      buyDecision.textContent = "Would I recommend buying this stock?: No.";
+    }
+
+    summary.insertAdjacentElement("beforebegin", buyDecision);
+
     document.getElementById('momentum').appendChild(StockExceedDiv);
     document.getElementById('momentum').appendChild(SPExceedDiv);
     console.log(totalYears)
