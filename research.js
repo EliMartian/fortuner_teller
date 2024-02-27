@@ -83,17 +83,10 @@
         firstEverAdjClose = Number(firstEverAdjClose);
         mostRecentClose = Number(mostRecentClose);
         let y_intervals = 0;
-        console.log("most recent close")
-        console.log(mostRecentClose)
-        console.log("first Ever adj close")
-        console.log(firstEverAdjClose)
 
         let adjCloseTotalDifference = mostRecentClose - firstEverAdjClose;
-
-        console.log("adj close price intervals")
         let adjClosePriceInterval = adjCloseTotalDifference / 4;
         adjClosePriceInterval = Number(adjClosePriceInterval)
-        console.log(adjClosePriceInterval)
 
         for (let i = 0; i < length; i++) {
           let dot = document.createElement('span');
@@ -132,34 +125,17 @@
             let priceLabel = document.createElement('span');
             yearLabel.textContent = (Object.keys(updatedInfo)[i]).toString().split("-")[0];
             let closeAdj;
-            console.log("y_intervals is")
-            console.log(y_intervals)
             if (y_intervals == 0) {
-              console.log("inside y intervals is 0 branch")
               closeAdj = firstEverAdjClose;
-              console.log("what is closeAdj")
-              console.log(closeAdj)
             } else if (y_intervals < 4) {
-              console.log("inside of y < 5 branch")
               closeAdj = firstEverAdjClose + (adjClosePriceInterval * y_intervals);
-              console.log("what is closeAdj")
-              console.log(closeAdj)
-              console.log("quick math")
-              console.log(firstEverAdjClose + (adjClosePriceInterval * y_intervals))
             } else {
-              console.log("inside of y == 5 branch")
               closeAdj = mostRecentClose;
-              console.log("what is closeAdj")
-              console.log(closeAdj)
             }
-            console.log("what is closeAdj")
-            console.log(closeAdj)
             // let closeAdj = updatedInfo[Object.keys(updatedInfo)[i]]['5. adjusted close'];
             // closeAdj = Number(closeAdj); // Convert to number
             closeAdj = closeAdj.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             priceLabel.textContent = closeAdj;
-            console.log("priceLabel textContet is ")
-            console.log(priceLabel)
 
             yearLabel.classList.add('x_axis_label');
             priceLabel.classList.add('x_axis_label')
@@ -172,8 +148,6 @@
             graphObj.appendChild(yearLabel);
             graphObj.appendChild(priceLabel);
             y_intervals = y_intervals + 1
-            console.log("y_intervals at the end of obj is")
-            console.log(y_intervals)
           }
           dot.style.top = 825 - ((300 / heightScaleScore) * (adjustedCurrentClose / firstEverAdjClose)) + "px"; 
         }
@@ -491,6 +465,9 @@
     let yesBuy = false;
     let mostRecentBuyYear;
     let recentOut = 0;
+    let moonCandidate = false;
+    let moonMultiplier = 0;
+    let moonConfirmed = false;
 
     let summary = document.getElementById('summary');
     let overall_rating = document.getElementById('overall_rating');
@@ -499,8 +476,6 @@
     // Stops 2 years earlier than current year to ensure that YTD extends to proper range
     // Try only stopping 1 year before? We are missing all of 2023-2024.... bruh!
     for (let currYear = universalStartYear; currYear < universalEndYear; currYear++) {
-      console.log("looking at the year")
-      console.log(currYear);
       totalYears = totalYears + 1
       let januaryStockIndex = findEntry(currYear, 1, 1, globalStockRes);
       // Insert 1 year gap to simulate YTD calulcation
@@ -524,9 +499,6 @@
         // This indicates stock volatility compared to market 
         console.log("unacceptable. Stock just died randomly for no reason. ")
       } else if (nextJanuaryStockAdj / januaryStockAdj >= 1.2) {
-        console.log("currYear performed better than 1.2 threshold")
-        console.log("consecYearStart")
-        console.log(consecYearStart)
         consecYearArray[consecOutPerform] = currYear;
         consecOutPerform = consecOutPerform + 1;
         if (consecYearStart == 0) {
@@ -541,20 +513,10 @@
             yearsOutPerformed.textContent = "Based upon the trend observed over these years: " + consecYearArray;
             summary.appendChild(buyRecommendation);
             summary.appendChild(yearsOutPerformed)
-            console.log("I would have bought this stock on January 1st of the year: ");
-            console.log(currYear + 1)
-            console.log("These are the years that I saw it outperform")
-            console.log(consecYearArray)
-            console.log("starting fresh")
             consecYearStart = 0;
             consecOutPerform = 0;
             consecYearArray = [];
           } else if ((currYear - consecYearStart > 2)){
-            console.log("resetting and looking for a new consec sequence")
-            console.log("consecYearStart")
-            console.log(consecYearStart)
-            console.log("curr year")
-            console.log(currYear)
             consecYearStart = 0;
             consecOutPerform = 0;
             consecYearArray = [];
@@ -578,12 +540,23 @@
         // SUNDAY WORK: also check if the stock beat the market and was > 1.2 for 2022-23 as that means its ready to moon
         // and also make sure and check that the current year is 2022 or 2023
         // Also add a feature where you see how much money its stock buy predictions would have made you since it told you to invest. 
-        if (Number(currYear) == 2022 && (nextJanuaryStockAdj / januaryStockAdj) > 1.1) {
-          console.log("stock is about to be a super hot trending topic for 2024")
+        if (Number(currYear) == 2022 && (nextJanuaryStockAdj / januaryStockAdj) >= 1.1) {
+          moonCandidate = true;
+          moonMultiplier = (nextJanuaryStockAdj / januaryStockAdj);
+        } else if (Number(currYear) == 2022 && (nextJanuaryStockAdj / januaryStockAdj) < 1.1) {
+          moonCandidate = false;
+          moonMultiplier = 0;
         }
+        
+        if (moonCandidate && Number(currYear) == 2023 && (nextJanuaryStockAdj / januaryStockAdj) >= 1.1 && (nextJanuaryStockAdj / januaryStockAdj) > moonMultiplier) {
+          moonConfirmed = true;
+        } else if (!moonCandidate && Number(currYear) == 2023) {
+          moonCandidate = false;
+          moonMultiplier = 0;
+          moonConfirmed = false;
+        }
+
         if (Number(universalEndYear - currYear) <= 4) {
-          console.log("outperforming for the year:")
-          console.log(currYear)
           recentOut = recentOut + 1;
         } 
       }
@@ -600,23 +573,6 @@
 
     document.getElementById('momentum').appendChild(StockExceedDiv);
     document.getElementById('momentum').appendChild(SPExceedDiv);
-    console.log(totalYears)
-    console.log(outPerf)
-    console.log(outPerf / totalYears)
-    if (((outPerf / totalYears) > 0.67) && (underPGain > underPLoss)) {
-      console.log("stock is an outperformer for the market")
-    } else {
-      console.log("stock failed compared to the market")
-    }
-
-    if ((decYear / totalYears) < 0.1) {
-      console.log("stock is a super gainer and overpowered")
-    } else if ((decYear / totalYears) < 0.3) {
-      console.log("stock consistently gained value")
-    } else {
-      console.log("stock consistently lost value")
-    }
-
 
     let final_decision = document.createElement('h3');
     let justification = document.createElement('h4');
@@ -624,57 +580,48 @@
     let just_money = document.createElement('h4');
     // If the stock would have been bought within the last four years and the stock has outperformed the market 
     // at least 2/4 times or better in the past four years, 
-    console.log("recent outperform was")
-    console.log(recentOut)
-    if (Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2) {
+    if (moonConfirmed) {
+      final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
+      justification.textContent = 'This stock seems positioned to outperform based on recent trends and could skyrocket';
+      if (Number(mostRecentBuyYear) > 0) {
+        just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
+        indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
+        mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
+        let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
+        let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
+        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: ' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      }
+    } else if (Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2) {
       final_decision.textContent = 'Should you buy this stock in the year 2024: Yes';
       justification.textContent = 'This stock would have been bought within the last few years, and has beat the market on average during the last few years';
       if (Number(mostRecentBuyYear) > 0) {
         just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
         indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
-        // console.log(indexMostRecentBuy)
         mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
-        // console.log(mostRecentBuyAdjClose)
         let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
-        // console.log(marketPriceStock)
         let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        // console.log(calculatedValue)
         just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: ' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       }
-    } else if ((decYear / totalYears) <= 0.2 && recentOut >= 1) {
+    } else if ((decYear / totalYears) <= 0.25 && recentOut >= 1) {
       final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
       justification.textContent = 'This stock has historically gained value and remains relevant in the current market';
       if (Number(mostRecentBuyYear) > 0) {
         just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
         indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
-        // console.log(indexMostRecentBuy)
         mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
-        // console.log(mostRecentBuyAdjClose)
         let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
-        // console.log(marketPriceStock)
         let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        // console.log(calculatedValue)
         just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: ' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       }
     } else if (recentOut >= 3) {
-      console.log("entering else if recentOut >= 3")
       final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
       justification.textContent = 'This stock has beat the market significantly in recent years';
-      console.log('what the hell is wrong with most recent buy year')
-      console.log(mostRecentBuyYear)
-      console.log((Number(mostRecentBuyYear) > 0))
       if (Number(mostRecentBuyYear) > 0) {
-        console.log("inside the forbidden nu,ber > 0 loop")
         just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
-        console.log(just_year)
         indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
-        console.log(indexMostRecentBuy)
         mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
-        console.log(mostRecentBuyAdjClose)
         let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
-        console.log(marketPriceStock)
         let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        console.log(calculatedValue)
         just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: ' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       }
     } else {
@@ -689,6 +636,7 @@
     overall_rating.appendChild(justification);
     overall_rating.appendChild(just_year);
     overall_rating.appendChild(just_money);
+    moonConfirmed = false;
 
     // graphically display that information to user, and also add in another vet that 
     // the stock needs to at least increase by the total amount that the S&P did over their overlapping 
