@@ -495,7 +495,7 @@
       if (nextJanuaryStockAdj / januaryStockAdj < 1) {
         yearArrayHeading.style['color'] = '#C21807';
         decYear = decYear + 1
-      } else if ((nextJanuaryStockAdj / januaryStockAdj < 0.75) && (nextJanuarySPAdj / januarySPAdj > 0.75)) {
+      } else if ((nextJanuaryStockAdj / januaryStockAdj < 0.50) && (nextJanuarySPAdj / januarySPAdj > 0.75)) {
         // This indicates stock volatility compared to market 
         console.log("unacceptable. Stock just died randomly for no reason. ")
       } else if (nextJanuaryStockAdj / januaryStockAdj >= 1.2) {
@@ -589,7 +589,7 @@
         mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
         let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
         let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: ' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       }
     } else if (Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2) {
       final_decision.textContent = 'Should you buy this stock in the year 2024: Yes';
@@ -600,7 +600,7 @@
         mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
         let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
         let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: ' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       }
     } else if ((decYear / totalYears) <= 0.25 && recentOut >= 1) {
       final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
@@ -611,7 +611,7 @@
         mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
         let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
         let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: ' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       }
     } else if (recentOut >= 3) {
       final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
@@ -622,7 +622,7 @@
         mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
         let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
         let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: ' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       }
     } else {
       final_decision.textContent = 'Should you buy this stock in the year 2024: No';
