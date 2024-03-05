@@ -722,7 +722,7 @@
       console.log(document.getElementById('research_stock_ticker'))
       console.log(document.getElementById('research_stock_ticker').value)
       console.log("before buy decisions")
-      let buyDecisions = document.querySelector('.buy_decisions')
+      let buyDecisions = document.querySelectorAll('.buy_decisions')
       console.log(buyDecisions)
       for (let buyD = 0; buyD < buyDecisions.length; buyD++) {
         console.log(buyDecisions[buyD])
