@@ -6,6 +6,9 @@
   let globalStockRes;
   let globalSPRes;
   let ticker; 
+  let buyCandidates = [];
+  let moonCandidates = [];
+  let freshHotBuyCandidates = [];
 
   // Personal Project Notes + Future Ideas:
 
@@ -464,6 +467,7 @@
     let consecYearArray = [];
     let yesBuy = false;
     let mostRecentBuyYear;
+    let firstEverBuyYear = 0;
     let recentOut = 0;
     let moonCandidate = false;
     let moonMultiplier = 0;
@@ -505,6 +509,9 @@
           consecYearStart = currYear; 
         } else {
           if ((currYear - consecYearStart <= 3) && consecOutPerform >= 3) {
+            if (firstEverBuyYear == 0) {
+              firstEverBuyYear = Number(currYear + 1);
+            }
             mostRecentBuyYear = Number(currYear + 1);
             yesBuy = true;
             let buyRecommendation = document.createElement('h4');
@@ -562,11 +569,12 @@
       }
     }
     let buyDecision = document.createElement('h3');
+    buyDecision.classList.add('buy_decisions');
     
     if (yesBuy) {
-      buyDecision.textContent = "Would I recommend buying this stock?:  Yes";
+      buyDecision.textContent = "Would I have bought this stock before:  Yes";
     } else {
-      buyDecision.textContent = "Would I recommend buying this stock?:  No";
+      buyDecision.textContent = "Would I have bought this stock before:  Not Yet...";
     }
 
     summary.insertAdjacentElement("beforebegin", buyDecision);
@@ -578,11 +586,32 @@
     let justification = document.createElement('h4');
     let just_year = document.createElement('h4');
     let just_money = document.createElement('h4');
-    // If the stock would have been bought within the last four years and the stock has outperformed the market 
-    // at least 2/4 times or better in the past four years, 
-    if (moonConfirmed) {
-      final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
-      justification.textContent = 'This stock seems positioned to outperform based on recent trends and could skyrocket';
+    let overallBuyForCurrentYear = false;
+    console.log("before checking for overalBuyforCurYear")
+    if (moonConfirmed || (Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2) 
+        || ((decYear / totalYears) <= 0.25 && recentOut >= 1) || (recentOut >= 3)) {
+      overallBuyForCurrentYear = true;
+      console.log("Ticker is causing problems? ")
+      console.log(ticker.toUpperCase())
+      buyCandidates.push(ticker.toUpperCase());
+      console.log(buyCandidates)
+    }
+    console.log("trying to figure out buy")
+    if (overallBuyForCurrentYear) {
+      console.log("inside if overallBuyForCur Year")
+      final_decision.textContent = 'Is this stock a Buy Candidate in the year 2024: Yes'
+      // Provide overall reasoning for the decision
+      if (moonConfirmed) {
+        moonCandidates.push(ticker.toUpperCase());
+        justification.textContent = 'This stock seems positioned to outperform based on recent trends and could skyrocket';
+      } else if ((Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2)) {
+        justification.textContent = 'This stock would have been bought within the last few years, and has beat the market on average during the last few years';
+      } else if (((decYear / totalYears) <= 0.25 && recentOut >= 1)) {
+        justification.textContent = 'This stock has historically gained value and remains relevant in the current market';
+      } else {
+        justification.textContent = 'This stock has beat the market significantly in recent years and warrants attention';
+      }
+      console.log("able to do overallBuyForCuryear")
       if (Number(mostRecentBuyYear) > 0) {
         just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
         indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
@@ -591,43 +620,73 @@
         let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
         just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
       }
-    } else if (Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2) {
-      final_decision.textContent = 'Should you buy this stock in the year 2024: Yes';
-      justification.textContent = 'This stock would have been bought within the last few years, and has beat the market on average during the last few years';
-      if (Number(mostRecentBuyYear) > 0) {
-        just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
-        indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
-        mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
-        let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
-        let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-      }
-    } else if ((decYear / totalYears) <= 0.25 && recentOut >= 1) {
-      final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
-      justification.textContent = 'This stock has historically gained value and remains relevant in the current market';
-      if (Number(mostRecentBuyYear) > 0) {
-        just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
-        indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
-        mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
-        let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
-        let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-      }
-    } else if (recentOut >= 3) {
-      final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
-      justification.textContent = 'This stock has beat the market significantly in recent years';
-      if (Number(mostRecentBuyYear) > 0) {
-        just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
-        indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
-        mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
-        let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
-        let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
-        just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-      }
+      console.log("finished overallBuy calculation")
     } else {
       final_decision.textContent = 'Should you buy this stock in the year 2024: No';
       justification.textContent = 'This stock did not consistently gain or beat the market during the last few years';
     }
+
+    console.log("about to create a fresh hot stock")
+    let hotFreshStock = document.createElement('h3');
+    if (firstEverBuyYear == universalEndYear) {
+      console.log("inside of fresh hot stock")
+      freshHotBuyCandidates.push(ticker.toUpperCase());
+      console.log("This stock would have just been bought for the first time in 2024")
+      console.log(universalEndYear)
+      console.log(firstEverBuyYear)
+      hotFreshStock.textContent = 'This stock would have just been purchased for the first time in the current year: ' + Number(universalEndYear);
+    }
+    console.log("finished making a fresh hot stock")
+
+    // If the stock would have been bought within the last four years and the stock has outperformed the market 
+    // at least 2/4 times or better in the past four years, 
+    // if (moonConfirmed) {
+    //   final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
+    //   if (Number(mostRecentBuyYear) > 0) {
+    //     just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
+    //     indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
+    //     mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
+    //     let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
+    //     let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
+    //     just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    //   }
+    // } else if (Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2) {
+    //   final_decision.textContent = 'Should you buy this stock in the year 2024: Yes';
+    //   justification.textContent = 'This stock would have been bought within the last few years, and has beat the market on average during the last few years';
+    //   if (Number(mostRecentBuyYear) > 0) {
+    //     just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
+    //     indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
+    //     mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
+    //     let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
+    //     let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
+    //     just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    //   }
+    // } else if ((decYear / totalYears) <= 0.25 && recentOut >= 1) {
+    //   final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
+    //   justification.textContent = 'This stock has historically gained value and remains relevant in the current market';
+    //   if (Number(mostRecentBuyYear) > 0) {
+    //     just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
+    //     indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
+    //     mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
+    //     let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
+    //     let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
+    //     just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    //   }
+    // } else if (recentOut >= 3) {
+    //   final_decision.textContent = 'Should you buy this stock in the year 2024: Yes'
+    //   justification.textContent = 'This stock has beat the market significantly in recent years';
+    //   if (Number(mostRecentBuyYear) > 0) {
+    //     just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
+    //     indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
+    //     mostRecentBuyAdjClose = updatedStockInfo[Object.keys(updatedStockInfo)[indexMostRecentBuy]]['5. adjusted close'];
+    //     let marketPriceStock = updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close'];
+    //     let calculatedValue = (1000 / mostRecentBuyAdjClose) * marketPriceStock;
+    //     just_money.textContent = 'If you would have put $1,000 into this stock on Jan 1st of the above year, your investment would now be worth: $' + Number(calculatedValue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    //   }
+    // } else {
+    //   final_decision.textContent = 'Should you buy this stock in the year 2024: No';
+    //   justification.textContent = 'This stock did not consistently gain or beat the market during the last few years';
+    // }
 
     let final_decision_greeting = document.createElement('h2');
     final_decision_greeting.textContent = 'Overall Decision for Stock:';
@@ -636,13 +695,44 @@
     overall_rating.appendChild(justification);
     overall_rating.appendChild(just_year);
     overall_rating.appendChild(just_money);
+    overall_rating.appendChild(hotFreshStock);
     moonConfirmed = false;
 
-    // graphically display that information to user, and also add in another vet that 
-    // the stock needs to at least increase by the total amount that the S&P did over their overlapping 
-    // period otherwise that's just stupid. For example, OKE was a consistent gainer but didn't get 
-    // penalized hard enough for shedding 0.49 of its value one year, (shouldn't do more than 0.75 unless)
-    // the S&P does for that year too, and also needs to increase the same amount that 
+    console.log("We got your buy candidates here:")
+    console.log(buyCandidates)
+    console.log("We got your moon candidates here:")
+    console.log(moonCandidates)
+    console.log("We got your freshHot 2024 buys here:")
+    console.log(freshHotBuyCandidates)
+
+    let reset_greeting = document.createElement('h2');
+    reset_greeting.textContent = 'Ready to do more Research?';
+    let reset_button = document.createElement('button');
+    reset_button.addEventListener('click', function() {
+      console.log("hey, you clicked reset button!")
+      document.getElementById('graph').innerHTML = '';
+      document.getElementById('momentum_slider').innerHTML = '';
+      document.getElementById('momentum').innerHTML = '';
+      document.getElementById('summary').innerHTML = '';
+      document.getElementById('overall_rating').innerHTML = '';
+      console.log('what exactly is going on with mr research_stock_ticker')
+      console.log(document.getElementById('research_stock_ticker'))
+      console.log(document.getElementById('research_stock_ticker').value)
+      document.getElementById('research_stock_ticker').value = '';
+      console.log(document.getElementById('research_stock_ticker'))
+      console.log(document.getElementById('research_stock_ticker').value)
+      console.log("before buy decisions")
+      let buyDecisions = document.querySelector('.buy_decisions')
+      console.log(buyDecisions)
+      for (let buyD = 0; buyD < buyDecisions.length; buyD++) {
+        console.log(buyDecisions[buyD])
+        buyDecisions[buyD].innerHTML = '';
+      }
+      
+    });
+    reset_button.textContent = 'Reset';
+    overall_rating.appendChild(reset_greeting);
+    overall_rating.appendChild(reset_button);
   }
 
   // Finds the closest entry in the API week list based upon 
