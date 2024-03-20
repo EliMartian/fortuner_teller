@@ -8,6 +8,8 @@
   let ticker; 
   let buyCandidates = [];
   let moonCandidates = [];
+  let pennyCandidates = [];
+  let superGainerCandidates = [];
   let freshHotBuyCandidates = [];
 
   // Personal Project Notes + Future Ideas:
@@ -472,6 +474,9 @@
     let moonCandidate = false;
     let moonMultiplier = 0;
     let moonConfirmed = false;
+    let pennyCandidate = false;
+    let pennyConfirmed = false;
+    let superGainerConfirmed = false;
 
     let summary = document.getElementById('summary');
     let overall_rating = document.getElementById('overall_rating');
@@ -499,7 +504,7 @@
       if (nextJanuaryStockAdj / januaryStockAdj < 1) {
         yearArrayHeading.style['color'] = '#C21807';
         decYear = decYear + 1
-      } else if ((nextJanuaryStockAdj / januaryStockAdj < 0.50) && (nextJanuarySPAdj / januarySPAdj > 0.75)) {
+      } else if ((nextJanuaryStockAdj / januaryStockAdj < 0.40) && (nextJanuarySPAdj / januarySPAdj > 0.8)) {
         // This indicates stock volatility compared to market 
         console.log("unacceptable. Stock just died randomly for no reason. ")
       } else if (nextJanuaryStockAdj / januaryStockAdj >= 1.2) {
@@ -531,6 +536,25 @@
         }
         
       }
+      console.log("about to start penny candidates")
+      console.log(Number(januaryStockAdj))
+      console.log(Number(universalEndYear - currYear))
+      if (Number(universalEndYear - currYear) <= 4 && Number(januaryStockAdj) < 10) {
+        console.log("trying to find you penny candidates")
+        console.log(currYear)
+        console.log(januaryStockAdj)
+        console.log(Number(currYear + 1))
+        console.log(nextJanuaryStockAdj)
+        if (Number(currYear + 1) == universalEndYear) {
+          console.log("looking at 2024, start of year adj price vs curr price in March")
+          let januaryCurrentYearPrice = nextJanuaryStockAdj;
+          let marketPriceCurrent = Number(updatedStockInfo[Object.keys(updatedStockInfo)[0]]['5. adjusted close']);
+          if (marketPriceCurrent > (januaryCurrentYearPrice * 1.1) && marketPriceCurrent < 10) {
+            pennyConfirmed = true;
+            pennyCandidates.push(ticker.toUpperCase());
+          }
+        }
+      }
       // Determine whether or not the stock exceeded the S&P500 for each year
       if (nextJanuarySPAdj / januarySPAdj > nextJanuaryStockAdj / januaryStockAdj) {
         SPExceedDiv.appendChild(yearArrayHeading);
@@ -544,6 +568,7 @@
       } else {
         StockExceedDiv.appendChild(yearArrayHeading);
         outPerf = outPerf + 1
+
         // SUNDAY WORK: also check if the stock beat the market and was > 1.2 for 2022-23 as that means its ready to moon
         // and also make sure and check that the current year is 2022 or 2023
         // Also add a feature where you see how much money its stock buy predictions would have made you since it told you to invest. 
@@ -568,6 +593,11 @@
         } 
       }
     }
+    // Super gainer candidates
+    if (((decYear / totalYears) <= 0.1 && recentOut >= 2)) {
+      superGainerCandidates.push(ticker.toUpperCase())
+      superGainerConfirmed = true;
+    }
     let buyDecision = document.createElement('h3');
     buyDecision.classList.add('buy_decisions');
     
@@ -589,7 +619,7 @@
     let overallBuyForCurrentYear = false;
     console.log("before checking for overalBuyforCurYear")
     if (moonConfirmed || (Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2) 
-        || ((decYear / totalYears) <= 0.25 && recentOut >= 1) || (recentOut >= 3)) {
+        || ((decYear / totalYears) <= 0.25 && recentOut >= 1) || (recentOut >= 3) || pennyConfirmed || superGainerConfirmed) {
       overallBuyForCurrentYear = true;
       console.log("Ticker is causing problems? ")
       console.log(ticker.toUpperCase())
@@ -636,7 +666,7 @@
       console.log(firstEverBuyYear)
       hotFreshStock.textContent = 'This stock would have just been purchased for the first time in the current year: ' + Number(universalEndYear);
     }
-    console.log("finished making a fresh hot stock")
+   
 
     // If the stock would have been bought within the last four years and the stock has outperformed the market 
     // at least 2/4 times or better in the past four years, 
@@ -704,6 +734,10 @@
     console.log(moonCandidates)
     console.log("We got your freshHot 2024 buys here:")
     console.log(freshHotBuyCandidates)
+    console.log("We got your penny candidates here:")
+    console.log(pennyCandidates)
+    console.log("We got your super gainer candidates here:")
+    console.log(superGainerCandidates)
 
     let reset_greeting = document.createElement('h2');
     reset_greeting.textContent = 'Ready to do more Research?';
