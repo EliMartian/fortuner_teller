@@ -1,6 +1,6 @@
 (function() {
   window.addEventListener('load', init);
-  const APIkey = "A5V08V16P0UGS8VY"  
+  const APIkey = "WJ2S8Y8BM204TYD6"  
   // "TLUYLC7Y5VCCJC9A"
   let globalYTDTrack = 0;
   let globalStockRes;
@@ -11,6 +11,8 @@
   let pennyCandidates = [];
   let superGainerCandidates = [];
   let freshHotBuyCandidates = [];
+
+  
 
   // Personal Project Notes + Future Ideas:
 
@@ -62,6 +64,15 @@
   // Calculates a stock / security price and corresponding info based upon what stock, 
   // when the user invested, and how much they put into the security / stock.
   function calculateResearch(res) {
+      console.log("res")
+      console.log(res)
+      let lastRefreshedYear = res['Meta Data']['3. Last Refreshed'].split('-')[0]
+      let bob = "Bob";
+      console.log(bob.includes("Bob"))
+      if (res && res['Error Message'] && res['Error Message'].includes("Invalid API call.")) {
+        console.log("You looked up a fake stock! Keep going")
+
+      }
       globalStockRes = res;
       var updatedInfo = res['Weekly Adjusted Time Series'];
       ticker = ticker.toLowerCase();
@@ -173,8 +184,9 @@
         }
       };
       document.getElementById('graph').appendChild(newGraphBackground);
-      
-      calculateMomentum(res);
+      if (lastRefreshedYear >= 2024) {
+        calculateMomentum(res);
+      }
   }
 
   // Looks at 10, 5, 2, and 1 year (YTD) intervals of the stocks performance across 
@@ -619,12 +631,15 @@
     let overallBuyForCurrentYear = false;
     console.log("before checking for overalBuyforCurYear")
     if (moonConfirmed || (Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2) 
-        || ((decYear / totalYears) <= 0.25 && recentOut >= 1) || (recentOut >= 3) || pennyConfirmed || superGainerConfirmed) {
+        || ((decYear / totalYears) <= 0.2 && recentOut >= 1) || (recentOut >= 3) || pennyConfirmed || superGainerConfirmed) {
       overallBuyForCurrentYear = true;
       console.log("Ticker is causing problems? ")
       console.log(ticker.toUpperCase())
       buyCandidates.push(ticker.toUpperCase());
       console.log(buyCandidates)
+      if (((decYear / totalYears) <= 0.25 && recentOut >= 1)) {
+        console.log("does Boeing fall under this category? Yes. ")
+      }
     }
     console.log("trying to figure out buy")
     if (overallBuyForCurrentYear) {
@@ -634,14 +649,20 @@
       if (moonConfirmed) {
         moonCandidates.push(ticker.toUpperCase());
         justification.textContent = 'This stock seems positioned to outperform based on recent trends and could skyrocket';
+      } else if (superGainerConfirmed) {
+        justification.textContent = 'This stock has proven to be significantly outperforming the market and is a super gainer';
       } else if ((Number(universalEndYear - mostRecentBuyYear) <= 4 && recentOut >= 2)) {
         justification.textContent = 'This stock would have been bought within the last few years, and has beat the market on average during the last few years';
-      } else if (((decYear / totalYears) <= 0.25 && recentOut >= 1)) {
-        justification.textContent = 'This stock has historically gained value and remains relevant in the current market';
-      } else {
+      } else if ((recentOut >= 3)){
         justification.textContent = 'This stock has beat the market significantly in recent years and warrants attention';
+      } else if (pennyConfirmed) {
+        justification.textContent = 'This stock is very cheap and has the potential to explode if the company is promising';
+      } else if (((decYear / totalYears) <= 0.25 && recentOut >= 2)) {
+        justification.textContent = 'This stock has historically gained value and remains relevant in the current market';
       }
       console.log("able to do overallBuyForCuryear")
+      console.log("what was your justification?")
+      console.log(justification.textContent)
       if (Number(mostRecentBuyYear) > 0) {
         just_year.textContent = 'The most recent buy year for this stock was: ' + mostRecentBuyYear;
         indexMostRecentBuy = findEntry(Number(mostRecentBuyYear), 1, 1, globalStockRes);
@@ -658,7 +679,7 @@
 
     console.log("about to create a fresh hot stock")
     let hotFreshStock = document.createElement('h3');
-    if (firstEverBuyYear == universalEndYear) {
+    if (firstEverBuyYear == universalEndYear && universalEndYear == 2024) {
       console.log("inside of fresh hot stock")
       freshHotBuyCandidates.push(ticker.toUpperCase());
       console.log("This stock would have just been bought for the first time in 2024")
