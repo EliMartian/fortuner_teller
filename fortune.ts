@@ -8,7 +8,7 @@ let moneyTracker: number[] = [];
 let stockTracker: string[] = [];
 let godCounter: number = 0;
 
-function init() {
+function init(): void {
   document.getElementById('new_portfolio')!.addEventListener('click', buildNewPortfolio);
   document.getElementById('submission')!.addEventListener('click', function(el) {
     el.preventDefault();
@@ -23,7 +23,7 @@ function init() {
   });
 }
 
-function buildNewPortfolio() {
+function buildNewPortfolio(): void {
   totalPortfolioValue = 0;
   let newPort = document.querySelector('.new_port') as HTMLElement;
   newPort.style['display'] = 'block';
@@ -52,7 +52,7 @@ function buildNewPortfolio() {
   }
 }
 
-function displayCustomSellDate() {
+function displayCustomSellDate(): void {
   let sellDate = document.createElement('div');
   sellDate.classList.add('stock_input');
   let sellLabel = document.createElement('label');
@@ -70,7 +70,7 @@ function displayCustomSellDate() {
   buyStockText.textContent = "Date Invested:";
 }
 
-function addNewStockInput(value: string, displayedText: string) {
+function addNewStockInput(value: string, displayedText: string): void {
   let input = document.createElement('div');
   input.classList.add('stock_input');
   let inptLabel = document.createElement('label');
@@ -85,7 +85,7 @@ function addNewStockInput(value: string, displayedText: string) {
   stockContainer.appendChild(input);
 }
 
-function showStock() {
+function showStock(): void {
   let symbols = document.querySelectorAll(".ticker");
   for (let i = 0; i < symbols.length; i++) {
     const inputElement = symbols[i] as HTMLInputElement;
@@ -104,7 +104,7 @@ function showStock() {
   }
 }
 
-function calculateStock(response: any) {
+function calculateStock(response: any): void {
   console.log("res");
   console.log(response);
 
@@ -254,7 +254,7 @@ function calculateStock(response: any) {
 
 
 // Checks the status of the response
-async function statusCheck(res: Response) {
+async function statusCheck(res: Response): Promise<Response> {
   if (!res.ok) {
     throw new Error(await res.text());
   }
