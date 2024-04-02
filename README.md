@@ -1,2 +1,2 @@
 # fortuner_teller
-Fortune Teller Independent Research Project
+Fortune Teller Independent Project
