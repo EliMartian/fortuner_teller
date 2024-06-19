@@ -3,6 +3,7 @@ Fortune Teller Independent Project
 
 Note that the associated .js files were removed, but could easily be regenerated using the TypeScript compiler.
 
+## Note:
 This is all my own original work and passion project. 
 
 ## Inspiration
