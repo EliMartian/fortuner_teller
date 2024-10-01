@@ -56,6 +56,10 @@ header {
     justify-content: center;
 }
 
+#graph {
+    position: relative;
+}
+
 .acct_btns a {
     padding: 20px;
     background-color: green;
@@ -152,15 +156,14 @@ header {
     display: inline-block;
     position: absolute;
     transition: all 500ms ease-in-out;
-    left: 20px;
-  }
+}
 
-  .line {
+.line {
     width: 112px;
     height: 47px;
     border-bottom: 2px solid red;
     position: absolute;
-  }
+}
 
 .x_axis_label {
     display: inline-block;
